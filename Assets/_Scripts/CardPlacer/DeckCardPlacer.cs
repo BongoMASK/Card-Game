@@ -6,7 +6,6 @@ using Photon.Pun;
 public class DeckCardPlacer : CardPlacer
 {
     [SerializeField] List<BaseCard> cardPrefabs = new List<BaseCard>();
-    [SerializeField] List<string> cardPrefabsPath = new List<string>();
     [SerializeField] List<HandCardPlacer> handCardPlacers = new List<HandCardPlacer>();
 
     private void Start() {
@@ -20,10 +19,7 @@ public class DeckCardPlacer : CardPlacer
 
         int rand = Random.Range(0, cardPrefabs.Count);
 
-        //BaseCard c = Instantiate(cardPrefabs[rand]);
-        GameObject g = PhotonNetwork.Instantiate(cardPrefabsPath[rand], Vector3.one * 100, Quaternion.identity);
-        BaseCard c = g.GetComponent<BaseCard>();
-
+        BaseCard c = Instantiate(cardPrefabs[rand]);
         currentCard = c;
         c.currentCardPos = this;
         c.cardOwner = owner;

@@ -403,11 +403,6 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     }
 
     public void MoveCard(CardPlacer target, bool canMoveCard, bool moved = true) {
-        PV.RPC(nameof(RPC_MoveCard), RpcTarget.All, target, canMoveCard, moved);
-    }
-
-    [PunRPC]
-    public void RPC_MoveCard(CardPlacer target, bool canMoveCard, bool moved = true) {
         // Place card in the new position if everything is good
         if (canMoveCard) {
 
