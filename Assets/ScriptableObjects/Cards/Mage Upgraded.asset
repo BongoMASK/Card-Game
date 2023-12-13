@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3de8da5915ba76c48b70ea49d905486b, type: 3}
+  m_Name: Mage Upgraded
+  m_EditorClassIdentifier: 
+  cardName: Mage
+  upgradedCardStats: {fileID: 11400000}
+  normalCardStats: {fileID: 11400000, guid: c156a251eea0c6e4785deded3927ee6b, type: 2}
+  cardType: 2
+  maxHP: 3
+  sacrificeCost: 2
+  damage: 4
+  manaCost: 3
+  sprite: {fileID: 21300000, guid: f3cde3442074cd64aa954ae387c145ec, type: 3}
+  passiveName: Aura of Magi
+  passiveDescription: You can swap your position with Allies Around you instead of
+    using a movement turn. Allies can swap with you or other allies around you instead
+    of using a movement turn
