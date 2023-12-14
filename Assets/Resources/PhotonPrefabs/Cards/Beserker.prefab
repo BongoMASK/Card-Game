@@ -94,6 +94,7 @@ MonoBehaviour:
   cardOwner: {fileID: 0}
   border: {fileID: 63470014819743171}
   animator: {fileID: 7878540613311062566}
+  PV: {fileID: 0}
 --- !u!95 &7878540613311062566 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 6883387629089080176, guid: 1de10378eb89ac547bf11f4a407e8c55, type: 3}

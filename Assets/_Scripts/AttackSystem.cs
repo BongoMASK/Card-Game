@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class AttackSystem : MonoBehaviour {
 
-    public bool ValidateAttack(BaseCard original, BaseCard target) {
+    public bool ValidateAttack(BaseCard original, BaseCard target) {    
 
         if(original == null || target == null)
             return false;

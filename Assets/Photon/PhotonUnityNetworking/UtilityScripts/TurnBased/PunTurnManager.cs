@@ -166,6 +166,8 @@ namespace Photon.Pun.UtilityScripts
         /// <param name="finished"></param>
         public void SendMove(object move, bool finished)
         {
+            Debug.Log("Sending Move");
+
             if (IsFinishedByMe)
             {
                 UnityEngine.Debug.LogWarning("Can't SendMove. Turn is finished by this player.");

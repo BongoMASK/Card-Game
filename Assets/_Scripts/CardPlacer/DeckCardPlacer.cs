@@ -21,7 +21,8 @@ public class DeckCardPlacer : CardPlacer
         int rand = Random.Range(0, cardPrefabs.Count);
 
         //BaseCard c = Instantiate(cardPrefabs[rand]);
-        GameObject g = PhotonNetwork.Instantiate(cardPrefabsPath[rand], Vector3.one * 100, Quaternion.identity);
+        string path = "PhotonPrefabs/Cards/" + cardPrefabs[rand].name;
+        GameObject g = PhotonNetwork.Instantiate(path, Vector3.one * 100, Quaternion.identity);
         BaseCard c = g.GetComponent<BaseCard>();
 
         currentCard = c;

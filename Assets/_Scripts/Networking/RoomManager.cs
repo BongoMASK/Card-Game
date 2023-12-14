@@ -41,6 +41,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
         base.OnJoinedRoom();
 
         messageText.text = PhotonNetwork.MasterClient.NickName + "'s Lobby\nWaiting For Players...";
+
+        //PhotonNetwork.LoadLevel(1);
         //GameObject player = PhotonNetwork.Instantiate(playerPath, Vector3.zero, Quaternion.identity);
     }
 
@@ -50,9 +52,9 @@ public class RoomManager : MonoBehaviourPunCallbacks
         if (!PhotonNetwork.IsMasterClient)
             return;
 
-        if(PhotonNetwork.CurrentRoom.PlayerCount >= 2) {
+        if (PhotonNetwork.CurrentRoom.PlayerCount >= 2) {
             messageText.text = "Starting Game...";
-            Invoke(nameof(StartGame), 5);
+            Invoke(nameof(StartGame), 1);
         }
     }
 

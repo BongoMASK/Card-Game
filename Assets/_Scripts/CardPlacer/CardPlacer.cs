@@ -19,6 +19,14 @@ public class CardPlacer : MonoBehaviour
 
     [SerializeField] SpriteRenderer border;
 
+    static int lastId = 0;
+
+    public int id = 0;
+
+    private void Start() {
+        id = lastId++;
+    }
+
     public virtual void OnCardPlaced(BaseCard card) {
 
     }
