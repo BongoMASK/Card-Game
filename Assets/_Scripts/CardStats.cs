@@ -8,6 +8,7 @@ public enum CardType {
     Beserker,
     Healer,
     Warrior,
+    None
 }
 
 [CreateAssetMenu(fileName ="New Card", menuName = "ScriptableObjects/New Card")]

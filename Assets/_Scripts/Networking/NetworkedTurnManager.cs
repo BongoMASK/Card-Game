@@ -55,7 +55,7 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
     /// </summary>
     /// <value>The elapsed time in the turn.</value>
     public float ElapsedTimeInTurn {
-        get { return ((float)(PhotonNetwork.ServerTimestamp - PhotonNetwork.CurrentRoom.GetTurnStart())) / 1000.0f; }
+        get { return ((float)(PhotonNetwork.ServerTimestamp - PhotonNetwork.CurrentRoom.GetTurnStartTime())) / 1000.0f; }
     }
 
 
@@ -103,6 +103,8 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
     /// </summary>
     private readonly HashSet<Player> finishedPlayers = new HashSet<Player>();
 
+    private List<Player> playerOrder = new List<Player>();
+
     /// <summary>
     /// The turn manager event offset event message byte. Used internaly for defining data in Room Custom Properties
     /// </summary>
@@ -117,6 +119,11 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
     /// The Final Move event message byte. Used internaly for saving data in Room Custom Properties
     /// </summary>
     public const byte EvFinalMove = 2 + TurnManagerEventOffset;
+
+    /// <summary>
+    /// The Final Move event message byte. Used internaly for saving data in Room Custom Properties
+    /// </summary>
+    public const byte EvCreateCard = 3 + TurnManagerEventOffset;
 
     // keep track of message calls
     private bool _isOverCallProcessed = false;
@@ -171,6 +178,13 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
         // the server won't send the event back to the origin (by default). to get the event, call it locally
         // (note: the order of events might be mixed up as we do this locally)
         ProcessOnEvent(evCode, moveHt, PhotonNetwork.LocalPlayer.ActorNumber);
+    }
+
+    public void SendNewCardToAll(object[] cardData, Player owner) {
+        // along with the actual move, we have to send which turn this move belongs to
+        Hashtable moveHt = new Hashtable();
+        moveHt.Add("turn", Turn);
+        moveHt.Add("cardData", cardData);
     }
 
     /// <summary>
@@ -300,7 +314,7 @@ public static class TurnExtensions {
     /// <summary>
     /// start (server) time for currently ongoing turn (used to calculate end)
     /// </summary>
-    public static readonly string TurnStartPropKey = "TStart";
+    public static readonly string TurnStartTimePropKey = "TStart";
 
     /// <summary>
     /// Finished Turn of Actor (followed by number)
@@ -321,7 +335,7 @@ public static class TurnExtensions {
         Hashtable turnProps = new Hashtable();
         turnProps[TurnPropKey] = turn;
         if (setStartTime) {
-            turnProps[TurnStartPropKey] = PhotonNetwork.ServerTimestamp;
+            turnProps[TurnStartTimePropKey] = PhotonNetwork.ServerTimestamp;
         }
 
         room.SetCustomProperties(turnProps);
@@ -346,12 +360,12 @@ public static class TurnExtensions {
     /// </summary>
     /// <returns>The turn start.</returns>
     /// <param name="room">Room.</param>
-    public static int GetTurnStart(this RoomInfo room) {
-        if (room == null || room.CustomProperties == null || !room.CustomProperties.ContainsKey(TurnStartPropKey)) {
+    public static int GetTurnStartTime(this RoomInfo room) {
+        if (room == null || room.CustomProperties == null || !room.CustomProperties.ContainsKey(TurnStartTimePropKey)) {
             return 0;
         }
 
-        return (int)room.CustomProperties[TurnStartPropKey];
+        return (int)room.CustomProperties[TurnStartTimePropKey];
     }
 
     /// <summary>

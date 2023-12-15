@@ -54,6 +54,9 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
 
     public User cardOwner;
 
+    static int id = 0;
+    public int cardID;
+
     #endregion
 
     public delegate void EventFuncs();

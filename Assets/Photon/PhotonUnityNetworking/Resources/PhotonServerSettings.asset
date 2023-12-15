@@ -41,6 +41,7 @@ MonoBehaviour:
   - RespawnSpaceship
   - RPC_MoveCard
   - RPC_SendMoveToMasterClient
+  - RPC_SendDeckToMasterClient
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

@@ -14,6 +14,11 @@ public class RoomManager : MonoBehaviourPunCallbacks
         PhotonNetwork.AutomaticallySyncScene = true;
     }
 
+    private void Update() {
+        if(Input.GetKeyDown(KeyCode.L))
+            StartGame();
+    }
+
     #region Networking
 
     public void ConnectToMaster() {
@@ -42,7 +47,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
         messageText.text = PhotonNetwork.MasterClient.NickName + "'s Lobby\nWaiting For Players...";
 
-        //PhotonNetwork.LoadLevel(1);
         //GameObject player = PhotonNetwork.Instantiate(playerPath, Vector3.zero, Quaternion.identity);
     }
 
