@@ -61,14 +61,12 @@ public class Deck
             deck.cards.Add(deckCard);
         }
 
-        deck.Print();
-
         return deck;
     }
 
     public void Print() {
         foreach (var item in cards) {
-            Debug.Log(item.cardType + item.cardCount);
+            Debug.Log(item.cardType + ", " + item.cardCount);
         }
     }
 }

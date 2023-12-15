@@ -19,6 +19,10 @@ public class GameData : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.V)) {
             SendDeckToMasterClient();
         }
+
+        if(Input.GetKeyDown(KeyCode.S) && PhotonNetwork.IsMasterClient) {
+            CreateCardFromPlayerDeck(PhotonNetwork.MasterClient);
+        }
     }
 
     public void CreateCardFromPlayerDeck(Player player) {
@@ -29,7 +33,10 @@ public class GameData : MonoBehaviour {
         // get card stats
         CardType c = playerDecks[player].GetCardFromDeck();
 
+        object[] cardData = new object[] { c, BaseCard.id };
+
         // send new card to all using game controller
+        networkedTurnManager.SendNewCardToAll(cardData, player);
     }
 
     public BaseCard FindCard(int id) {
@@ -44,13 +51,15 @@ public class GameData : MonoBehaviour {
 
     public void SendDeckToMasterClient() {
         object[] o = localPlayerDeck.ToByteArray();
-        PV.RPC(nameof(RPC_SendDeckToMasterClient), RpcTarget.MasterClient, o, PhotonNetwork.LocalPlayer);
+        PV.RPC(nameof(RPC_SendDeckToMasterClient), RpcTarget.MasterClient, o, PhotonNetwork.LocalPlayer.ActorNumber);
     }
 
     [PunRPC]
-    public void RPC_SendDeckToMasterClient(object[] deckArray, Player sender) {
+    public void RPC_SendDeckToMasterClient(object[] deckArray, int sender) {
         Deck deck = Deck.ToDeck(deckArray);
+        Player p = PhotonNetwork.CurrentRoom.GetPlayer(sender);
+        playerDecks[p] = deck;
 
-        playerDecks[sender] = deck;
+        playerDecks[p].Print();
     }
 }

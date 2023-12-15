@@ -7,7 +7,7 @@ public enum MoveType {
     Attack
 }
 
-public class PlayerMove : MonoBehaviour
+public class PlayerMove
 {
     public int cardID;
     public int cardPlacerID;

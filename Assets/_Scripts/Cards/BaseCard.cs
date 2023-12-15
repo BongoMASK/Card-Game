@@ -54,7 +54,17 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
 
     public User cardOwner;
 
-    static int id = 0;
+    static int _id = -1;
+
+    public static int id {
+        get {
+            _id++;
+            return _id;
+        }
+        set {
+            _id = value;
+        }
+    }
     public int cardID;
 
     #endregion

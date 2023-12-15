@@ -41,6 +41,7 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
             _isOverCallProcessed = false;
 
             PhotonNetwork.CurrentRoom.SetTurn(value, true);
+            Debug.Log("Turn: " + Turn);
         }
     }
 
@@ -73,15 +74,7 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
     /// </summary>
     /// <value><c>true</c> if this turn is completed by all; otherwise, <c>false</c>.</value>
     public bool IsCompletedByAll {
-        get { return PhotonNetwork.CurrentRoom != null && Turn > 0 && this.finishedPlayers.Count == PhotonNetwork.CurrentRoom.PlayerCount; }
-    }
-
-    /// <summary>
-    /// Gets a value indicating whether the current turn is finished by me.
-    /// </summary>
-    /// <value><c>true</c> if the current turn is finished by me; otherwise, <c>false</c>.</value>
-    public bool IsFinishedByMe {
-        get { return this.finishedPlayers.Contains(PhotonNetwork.LocalPlayer); }
+        get { return PhotonNetwork.CurrentRoom != null && Turn > 0 && this.playerOrder.Count == 0; }
     }
 
     /// <summary>
@@ -99,11 +92,22 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
 
 
     /// <summary>
-    /// The finished players.
+    /// Stores Players in the order of their turns
     /// </summary>
-    private readonly HashSet<Player> finishedPlayers = new HashSet<Player>();
+    private Queue<Player> playerOrder = new Queue<Player>();
 
-    private List<Player> playerOrder = new List<Player>();
+    /// <summary>
+    /// Gets current active player turn
+    /// </summary>
+    public Player activePlayerTurn {
+        get { 
+            return PhotonNetwork.CurrentRoom.GetActivePlayer();
+        }
+        private set {
+            PhotonNetwork.CurrentRoom.SetActivePlayer(value);
+        }
+    }
+
 
     /// <summary>
     /// The turn manager event offset event message byte. Used internaly for defining data in Room Custom Properties
@@ -158,8 +162,8 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
     /// </summary>
     /// <param name="move"></param>
     /// <param name="finished"></param>
-    public void SendMove(object[] move, bool finished) {
-        if (IsFinishedByMe) {
+    public void SendMove(object[] move, bool finished, Player sender) {
+        if (!IsPlayersTurn(sender)) {
             UnityEngine.Debug.LogWarning("Can't SendMove. Turn is finished by this player.");
             return;
         }
@@ -172,19 +176,24 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
         byte evCode = (finished) ? EvFinalMove : EvMove;
         PhotonNetwork.RaiseEvent(evCode, moveHt, new RaiseEventOptions() { CachingOption = EventCaching.AddToRoomCache }, SendOptions.SendReliable);
         if (finished) {
-            PhotonNetwork.LocalPlayer.SetFinishedTurn(Turn);
+            sender.SetFinishedTurn(Turn);
         }
 
         // the server won't send the event back to the origin (by default). to get the event, call it locally
         // (note: the order of events might be mixed up as we do this locally)
-        ProcessOnEvent(evCode, moveHt, PhotonNetwork.LocalPlayer.ActorNumber);
+        ProcessOnEvent(evCode, moveHt, sender.ActorNumber);
     }
 
     public void SendNewCardToAll(object[] cardData, Player owner) {
         // along with the actual move, we have to send which turn this move belongs to
-        Hashtable moveHt = new Hashtable();
-        moveHt.Add("turn", Turn);
-        moveHt.Add("cardData", cardData);
+        Hashtable cardHt = new Hashtable();
+        cardHt.Add("turn", Turn);
+        cardHt.Add("cardData", cardData);
+        cardHt.Add("owner", owner.ActorNumber);
+
+        PhotonNetwork.RaiseEvent(EvCreateCard, cardHt, new RaiseEventOptions() { CachingOption = EventCaching.AddToRoomCache }, SendOptions.SendReliable);
+
+        ProcessOnEvent(EvCreateCard, cardHt, owner.ActorNumber);
     }
 
     /// <summary>
@@ -193,13 +202,39 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
     /// <returns><c>true</c>, if player finished the current turn, <c>false</c> otherwise.</returns>
     /// <param name="player">The Player to check for</param>
     public bool GetPlayerFinishedTurn(Player player) {
-        if (player != null && this.finishedPlayers != null && this.finishedPlayers.Contains(player)) {
+        if (player != null && !this.playerOrder.Contains(player))
             return true;
-        }
 
         return false;
     }
 
+    /// <summary>
+    /// Sets player turn order
+    /// </summary>
+    public void SetPlayerOrder() {
+        playerOrder = new Queue<Player>(PhotonNetwork.PlayerList);
+    }
+
+    public void SetActivePlayer() {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+
+        if (playerOrder.TryPeek(out Player result))
+            activePlayerTurn = result;
+        else
+            Debug.LogError("Could not set player turn");
+
+        //Debug.Log(activePlayerTurn.NickName + "'s Turn");
+    }
+
+    public bool IsPlayersTurn(Player player) {
+        if(activePlayerTurn == null) 
+            return true;
+
+        return player.ActorNumber == activePlayerTurn.ActorNumber;
+    }
+
+    
     #region Callbacks
 
     // called internally
@@ -226,15 +261,28 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
                     object[] move = (object[])evTable["move"];
 
                     if (turn == this.Turn) {
-                        this.finishedPlayers.Add(sender);
+                        this.playerOrder.Dequeue();
 
                         this.TurnManagerListener.OnPlayerFinished(sender, turn, move);
-
                     }
+                    Debug.Log(IsCompletedByAll);
 
                     if (IsCompletedByAll) {
                         this.TurnManagerListener.OnTurnCompleted(this.Turn);
+                        BeginTurn();
                     }
+                    else {
+                        SetActivePlayer();
+                    }
+                    break;
+                }
+            case EvCreateCard: {
+                    Hashtable evTable = content as Hashtable;
+                    int turn = (int)evTable["turn"];
+                    object[] cardData = (object[])evTable["cardData"];
+
+                    this.TurnManagerListener.OnCardCreated(sender, turn, cardData);
+
                     break;
                 }
         }
@@ -258,9 +306,22 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
 
         if (propertiesThatChanged.ContainsKey("Turn")) {
             _isOverCallProcessed = false;
-            this.finishedPlayers.Clear();
+
+            SetPlayerOrder();
             this.TurnManagerListener.OnTurnBegins(this.Turn);
+            SetActivePlayer();
         }
+
+        if (propertiesThatChanged.ContainsKey("ActivePlayer")) {
+            Debug.Log(activePlayerTurn.NickName + "'s Turn");
+        }
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient) {
+        base.OnMasterClientSwitched(newMasterClient);
+
+        // Fail safe
+        PhotonNetwork.LeaveRoom();
     }
 
     #endregion
@@ -296,12 +357,17 @@ public interface INetworkedTurnManagerCallbacks {
     /// <param name="move">Move Object data</param>
     void OnPlayerFinished(Player player, int turn, object[] move);
 
-
     /// <summary>
     /// Called when a turn completes due to a time constraint (timeout for a turn)
     /// </summary>
     /// <param name="turn">Turn index</param>
     void OnTurnTimeEnds(int turn);
+
+    /// <summary>
+    /// Called when a new card is created
+    /// </summary>
+    /// <param name="turn">Turn index</param>
+    void OnCardCreated(Player owner, int turn, object[] cardData);
 }
 
 
@@ -320,6 +386,11 @@ public static class TurnExtensions {
     /// Finished Turn of Actor (followed by number)
     /// </summary>
     public static readonly string FinishedTurnPropKey = "FToA";
+
+    /// <summary>
+    /// get which players turn it is
+    /// </summary>
+    public static readonly string ActivePlayerPropKey = "ActivePlayer";
 
     /// <summary>
     /// Sets the turn.
@@ -366,6 +437,40 @@ public static class TurnExtensions {
         }
 
         return (int)room.CustomProperties[TurnStartTimePropKey];
+    }
+
+    /// <summary>
+    /// Sets the player whose turn it should be.
+    /// </summary>
+    /// <param name="room">Room reference</param>
+    /// <param name="turn">Turn index</param>
+    /// <param name="setStartTime">If set to <c>true</c> set start time.</param>
+    public static void SetActivePlayer(this Room room, Player player) {
+        if (room == null || room.CustomProperties == null) {
+            return;
+        }
+
+        Hashtable turnProps = new Hashtable();
+        turnProps.Add(ActivePlayerPropKey, player);
+        //turnProps[ActivePlayerPropKey] = player.ActorNumber;
+
+        room.SetCustomProperties(turnProps);
+    }
+
+    /// <summary>
+    /// Gets the player whose turn it should be.
+    /// </summary>
+    /// <param name="room"></param>
+    /// <returns></returns>
+    public static Player GetActivePlayer(this RoomInfo room) {
+        //if (room == null || room.CustomProperties == null || !room.CustomProperties.ContainsKey(ActivePlayerPropKey)) {
+        //    return -1;
+        //}
+
+        if (!room.CustomProperties.ContainsKey(ActivePlayerPropKey))
+            Debug.Log("jfklajfdkajfkldajklfdass");
+
+        return (Player)room.CustomProperties[ActivePlayerPropKey];
     }
 
     /// <summary>

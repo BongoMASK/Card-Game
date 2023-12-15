@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
     [SerializeField] NetworkedTurnManager networkedTurnManager;
 
     private void Start() {
-        Screen.SetResolution(600, 400, false);
+        Screen.SetResolution(711, 400, false);
 
         networkedTurnManager.TurnManagerListener = this;
     }
@@ -19,44 +19,66 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
 
             PlayerMove move = new PlayerMove(2, 4, MoveType.Move);
             //networkedTurnManager.SendMove(move.ToByteArray(), false);
-            SendMoveToMasterClient(move);
+            SendMoveToMasterClient(move, false);
+        }
+
+        if(Input.GetKeyDown(KeyCode.K)) {
+            networkedTurnManager.BeginTurn();
+        }
+
+        if(Input.GetKeyDown(KeyCode.H)) {
+            Debug.Log("ending");
+
+            PlayerMove move = new PlayerMove(8, 1, MoveType.Move);
+            //networkedTurnManager.SendMove(move.ToByteArray(), false);
+            SendMoveToMasterClient(move, true);
         }
     }
 
     #region Networked Turn Manager Functions
 
     public void OnPlayerFinished(Player player, int turn, object[] move) {
-        throw new System.NotImplementedException();
+        Debug.Log(player.NickName + "'s turn is over");
     }
 
     public void OnPlayerMove(Player player, int turn, object[] move) {
+        Debug.Log(player.NickName + " played a move");
+
         PlayerMove playerMove = PlayerMove.ToPlayerMove(move);
         PerformMove(playerMove);
     }
 
     public void OnTurnBegins(int turn) {
-        throw new System.NotImplementedException();
+        Debug.Log("Turn Started");
     }
 
     public void OnTurnCompleted(int turn) {
-        throw new System.NotImplementedException();
+        Debug.Log("Turn Finished");
     }
 
     public void OnTurnTimeEnds(int turn) {
-        throw new System.NotImplementedException();
+        Debug.Log("Turn time ended");
+    }
+
+    public void OnCardCreated(Player owner, int turn, object[] cardData) {
+        CardType cardType = (CardType)cardData[0];
+        int id = (int)cardData[1];
+
+        Debug.Log(cardType + ", " + id);
     }
 
     #endregion
 
-    public void SendMoveToMasterClient(PlayerMove move) {
-        PV.RPC(nameof(RPC_SendMoveToMasterClient), RpcTarget.MasterClient, move.ToByteArray());
+    public void SendMoveToMasterClient(PlayerMove move, bool finished) {
+        PV.RPC(nameof(RPC_SendMoveToMasterClient), RpcTarget.MasterClient, move.ToByteArray(), finished, PhotonNetwork.LocalPlayer.ActorNumber);
     }
 
     [PunRPC]
-    public void RPC_SendMoveToMasterClient(object[] moveObject) {
+    public void RPC_SendMoveToMasterClient(object[] moveObject, bool finished, int actorNumber) {
         PlayerMove move = PlayerMove.ToPlayerMove(moveObject);
         move.Print();
-        Debug.Log("RPC");
+
+        networkedTurnManager.SendMove(move.ToByteArray(), finished, PhotonNetwork.CurrentRoom.GetPlayer(actorNumber));
     }
 
     void PerformMove(PlayerMove playerMove) {
@@ -74,4 +96,6 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
     void CardIntoPlayMovement() {
 
     }
+
+    
 }
