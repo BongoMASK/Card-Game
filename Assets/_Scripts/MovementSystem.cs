@@ -14,7 +14,7 @@ public class MovementSystem : MonoBehaviour {
         var placer = target as ManaCardPlacer;
 
         if (placer != null) {
-            if (card.cardOwner.hasRoundMana) {
+            if (card.cardOwner.hasGivenCardToManaZone) {
                 canMoveCard = false;
             }
         }

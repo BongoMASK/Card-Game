@@ -48,7 +48,7 @@ public class User : MonoBehaviour
 
     private void Start() {
         currentRoundMana = 0;
-        GameManager.instance.OnTurnBegin += RefillMana;
+        //GameManager.instance.OnTurnBegin += RefillMana;
     }
 
     public void PlayTurn() {

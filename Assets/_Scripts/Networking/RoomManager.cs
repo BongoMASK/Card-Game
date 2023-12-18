@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class RoomManager : MonoBehaviourPunCallbacks
 {
-    string playerPath = "";
-
     [SerializeField] TMP_Text messageText;
     [SerializeField] TMP_InputField inputFieldText;
 
@@ -15,7 +13,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
     }
 
     private void Update() {
-        if(Input.GetKeyDown(KeyCode.L))
+        if(Input.GetKeyDown(KeyCode.Space))
             StartGame();
     }
 

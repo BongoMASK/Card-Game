@@ -12,7 +12,7 @@ public class ShieldCardPlacer : CardPlacer
         c.cardOwner = owner;
         c.hasBeenMoved = true;
 
-        GameManager.instance.OnTurnBegin += SetCannotMove;
+        //GameManager.instance.OnTurnBegin += SetCannotMove;
     }
 
     void SetCannotMove() {

@@ -52,19 +52,9 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         }
     }
 
-    public User cardOwner;
+    public PlayerData cardOwner;
 
-    static int _id = -1;
-
-    public static int id {
-        get {
-            _id++;
-            return _id;
-        }
-        set {
-            _id = value;
-        }
-    }
+    public static int id = -1;
     public int cardID;
 
     #endregion
@@ -75,27 +65,34 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
 
     [SerializeField] SpriteRenderer border;
     [SerializeField] Animator animator;
-    [SerializeField] PhotonView PV;
 
     private void Start() {
-        PV = GetComponent<PhotonView>();
         defaultHP = cardStats.maxHP;
     }
 
     private void OnEnable() {
         OnDie += Die;
-        OnDie += CardValidator.instance.CheckForAllCardBuffs;
-        GameManager.instance.OnTurnBegin += HasBeenMovedOverride;
+        //OnDie += CardValidator.instance.CheckForAllCardBuffs;
+        //GameManager.instance.OnTurnBegin += HasBeenMovedOverride;
     }
 
     private void OnDisable() {
         OnDie -= Die;
-        OnDie -= CardValidator.instance.CheckForAllCardBuffs;
-        GameManager.instance.OnTurnBegin -= HasBeenMovedOverride;
+        //OnDie -= CardValidator.instance.CheckForAllCardBuffs;
+        //GameManager.instance.OnTurnBegin -= HasBeenMovedOverride;
     }
 
     public virtual void ApplyPassive(CardPlacer target) {
 
+    }
+
+    public static BaseCard FindCard(int id) {
+        foreach (var item in FindObjectsOfType<BaseCard>()) {
+            if (item.cardID == id) return item;
+        }
+
+        Debug.LogError("Card with id: " + id + " does not exist or has been destroyed");
+        return null;
     }
 
     #region Damage and Attack (Health Stuff)
@@ -105,7 +102,7 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     }
 
     public bool CanAttack(BaseCard other) {
-        if (cardOwner.currentRoundMana < cardStats.manaCost) {
+        if (cardOwner.mana < cardStats.manaCost) {
             GameManager.instance.SetMessageError("Not enough Mana");
             return false;
         }
@@ -183,7 +180,7 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     /// </summary>
     /// <param name="attackerCard"></param>
     /// <returns></returns>
-    bool CheckForBlockers(BaseCard attackerCard) {
+    public bool CheckForBlockers(BaseCard attackerCard) {
         List<BaseCard> cardList;
         if (cardOwner == GameManager.instance.user1)
             cardList = CardValidator.instance.user1Cards;
@@ -229,8 +226,8 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         if (currentCardPos.pos == Vector2.zero)
             return;
 
-        ShowMovementPowers();
-        ShowAttackPowers();
+        //ShowMovementPowers();
+        //ShowAttackPowers();
     }
 
     public void OnSelected(Color32 color) {
@@ -244,8 +241,8 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         if (currentCardPos.pos == Vector2.zero)
             return;
 
-        HideMovementPowers();
-        HideAttackPowers();
+        //HideMovementPowers();
+        //HideAttackPowers();
     }
 
     protected void ShowPowers() {
@@ -349,7 +346,7 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     public virtual void BattleFieldMovementSystem(CardPlacer target) {
         bool canCardMove = true;
 
-        if (cardOwner.currentRoundMana < cardStats.moveCost) {
+        if (cardOwner.mana < cardStats.moveCost) {
             GameManager.instance.SetMessageError("Not enough Mana");
             canCardMove = false;
         }
@@ -395,7 +392,7 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         // Check if it is a mana card placer.
         // User can only sacrifice card to mana placer once per round
         if (target as ManaCardPlacer != null) {
-            if (cardOwner.hasRoundMana) {
+            if (cardOwner.hasGivenCardToManaZone) {
                 canMoveCard = false;
 
                 GameManager.instance.SetMessageError("Can only move 1 card to mana zone per turn");
@@ -416,11 +413,6 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     }
 
     public void MoveCard(CardPlacer target, bool canMoveCard, bool moved = true) {
-        PV.RPC(nameof(RPC_MoveCard), RpcTarget.All, target, canMoveCard, moved);
-    }
-
-    [PunRPC]
-    public void RPC_MoveCard(CardPlacer target, bool canMoveCard, bool moved = true) {
         // Place card in the new position if everything is good
         if (canMoveCard) {
 

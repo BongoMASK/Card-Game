@@ -41,7 +41,6 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
             _isOverCallProcessed = false;
 
             PhotonNetwork.CurrentRoom.SetTurn(value, true);
-            Debug.Log("Turn: " + Turn);
         }
     }
 
@@ -255,6 +254,7 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
 
                     break;
                 }
+
             case EvFinalMove: {
                     Hashtable evTable = content as Hashtable;
                     int turn = (int)evTable["turn"];
@@ -276,6 +276,7 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
                     }
                     break;
                 }
+
             case EvCreateCard: {
                     Hashtable evTable = content as Hashtable;
                     int turn = (int)evTable["turn"];
@@ -302,9 +303,9 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
     /// <param name="propertiesThatChanged">Properties that changed.</param>
     public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged) {
 
-        //   Debug.Log("OnRoomPropertiesUpdate: "+propertiesThatChanged.ToStringFull());
-
         if (propertiesThatChanged.ContainsKey("Turn")) {
+            Debug.Log("Turn: " + Turn);
+
             _isOverCallProcessed = false;
 
             SetPlayerOrder();
@@ -313,7 +314,7 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
         }
 
         if (propertiesThatChanged.ContainsKey("ActivePlayer")) {
-            Debug.Log(activePlayerTurn.NickName + "'s Turn");
+            this.TurnManagerListener.OnPlayerTurnStarts(activePlayerTurn, Turn);
         }
     }
 
@@ -340,6 +341,15 @@ public interface INetworkedTurnManagerCallbacks {
     /// </summary>
     /// <param name="turn">Turn Index</param>
     void OnTurnCompleted(int turn);
+
+    /// <summary>
+    /// Called when the players turn starts
+    /// </summary>
+    /// <param name="player"></param>
+    /// <param name="turn"></param>
+    /// <param name="OnPlayerMove"></param>
+    /// <param name=""></param>
+    void OnPlayerTurnStarts(Player player, int turn);
 
     /// <summary>
     /// Called when a player moved (but did not finish the turn)
@@ -452,7 +462,6 @@ public static class TurnExtensions {
 
         Hashtable turnProps = new Hashtable();
         turnProps.Add(ActivePlayerPropKey, player);
-        //turnProps[ActivePlayerPropKey] = player.ActorNumber;
 
         room.SetCustomProperties(turnProps);
     }
@@ -463,13 +472,11 @@ public static class TurnExtensions {
     /// <param name="room"></param>
     /// <returns></returns>
     public static Player GetActivePlayer(this RoomInfo room) {
-        //if (room == null || room.CustomProperties == null || !room.CustomProperties.ContainsKey(ActivePlayerPropKey)) {
-        //    return -1;
-        //}
-
-        if (!room.CustomProperties.ContainsKey(ActivePlayerPropKey))
-            Debug.Log("jfklajfdkajfkldajklfdass");
-
+        if (room == null || room.CustomProperties == null || !room.CustomProperties.ContainsKey(ActivePlayerPropKey)) {
+            Debug.LogError("Could not get Active Player");
+            return null;
+        }
+        
         return (Player)room.CustomProperties[ActivePlayerPropKey];
     }
 

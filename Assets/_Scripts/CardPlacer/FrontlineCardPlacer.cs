@@ -4,7 +4,7 @@ using UnityEngine;
 public class FrontlineCardPlacer : CardPlacer
 {
     private void Start() {
-        Invoke(nameof(SetAttackPlacers), 0.5f);
+        //Invoke(nameof(SetAttackPlacers), 0.5f);
     }
 
     void SetAttackPlacers() {

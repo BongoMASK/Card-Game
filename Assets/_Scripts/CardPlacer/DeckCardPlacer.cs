@@ -11,7 +11,7 @@ public class DeckCardPlacer : CardPlacer
 
     private void Start() {
         OnCardRemoved(null);
-        GameManager.instance.OnTurnBegin += DrawCards;
+        //GameManager.instance.OnTurnBegin += DrawCards;
         DrawCards();
     }
 
@@ -20,20 +20,20 @@ public class DeckCardPlacer : CardPlacer
 
         int rand = Random.Range(0, cardPrefabs.Count);
 
-        //BaseCard c = Instantiate(cardPrefabs[rand]);
-        string path = "PhotonPrefabs/Cards/" + cardPrefabs[rand].name;
-        GameObject g = PhotonNetwork.Instantiate(path, Vector3.one * 100, Quaternion.identity);
-        BaseCard c = g.GetComponent<BaseCard>();
+        ////BaseCard c = Instantiate(cardPrefabs[rand]);
+        //string path = "PhotonPrefabs/Cards/" + cardPrefabs[rand].name;
+        //GameObject g = PhotonNetwork.Instantiate(path, Vector3.one * 100, Quaternion.identity);
+        //BaseCard c = g.GetComponent<BaseCard>();
 
-        currentCard = c;
-        c.currentCardPos = this;
-        c.cardOwner = owner;
+        //currentCard = c;
+        //c.currentCardPos = this;
+        //c.cardOwner = owner;
 
         //owner.hasPlacedCard = true;
     }
 
     void DrawCards() {
-        StartCoroutine(CardDrawAnim());
+        //StartCoroutine(CardDrawAnim());
     }
 
     IEnumerator CardDrawAnim() {

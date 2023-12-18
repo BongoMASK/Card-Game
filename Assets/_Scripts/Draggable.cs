@@ -13,7 +13,7 @@ public class Draggable : MonoBehaviour
         float min = 99999;
         CardPlacer bestCp = null;
 
-        foreach (CardPlacer cp in CardValidator.instance.allCardPlacers) {
+        foreach (CardPlacer cp in GameData.instance.activeCardPlacers) {
             float dist = (transform.position - cp.transform.position).magnitude;
             if (dist < threshold) {
                 if (dist < min) {
@@ -28,7 +28,14 @@ public class Draggable : MonoBehaviour
             return;
         }
 
-        card.ValidateMovement(bestCp); 
+        //card.ValidateMovement(bestCp);
+
+        if (CardFunctions.instance.ValidateMovement(card, bestCp, card.cardOwner.player)) {
+
+            PlayerMove move = new PlayerMove(card.cardID, bestCp.id, MoveType.Move);
+            GameController.instance.SendMoveToMasterClient(move, false);
+        }
+
         //CardValidator.instance.movementSystem.ValidateMovement(card.currentCardPos, bestCp, card); 
     }
 
@@ -62,12 +69,12 @@ public class Draggable : MonoBehaviour
         isBeingDragged = false;
         CheckIfNearCardPlacer();
 
-        if (GameManager.instance.currentSelectedCard == card) {
-            GameManager.instance.currentSelectedCard = null;
+        if (GameData.instance.currentSelectedCard == card) {
+            GameData.instance.currentSelectedCard = null;
             return;
         }
 
-        GameManager.instance.currentSelectedCard = card;
+        GameData.instance.currentSelectedCard = card;
     }
 
     #endregion

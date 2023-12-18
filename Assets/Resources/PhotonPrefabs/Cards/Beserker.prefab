@@ -92,6 +92,7 @@ MonoBehaviour:
   hasBeenMoved: 0
   hasAttacked: 0
   cardOwner: {fileID: 0}
+  cardID: 0
   border: {fileID: 63470014819743171}
   animator: {fileID: 7878540613311062566}
   PV: {fileID: 0}

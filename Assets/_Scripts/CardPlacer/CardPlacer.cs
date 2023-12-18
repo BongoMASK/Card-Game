@@ -15,16 +15,21 @@ public class CardPlacer : MonoBehaviour
 
     public BaseCard currentCard;
 
-    public User owner;
+    public PlayerData owner;
 
     [SerializeField] SpriteRenderer border;
 
-    static int lastId = 0;
+    public static int lastId = 0;
 
-    public int id = 0;
+    public int id;
 
-    private void Start() {
-        id = lastId++;
+    public static CardPlacer FindCardPlacer(int id) {
+        foreach (var item in FindObjectsOfType<CardPlacer>()) {
+            if (item.id == id) return item;
+        }
+
+        Debug.LogError("Card Placer with id: " + id + " does not exist or has been destroyed");
+        return null;
     }
 
     public virtual void OnCardPlaced(BaseCard card) {

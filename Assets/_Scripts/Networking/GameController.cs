@@ -4,12 +4,19 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
 
+    public static GameController instance;
+
     [SerializeField] PhotonView PV;
     [SerializeField] NetworkedTurnManager networkedTurnManager;
+    [SerializeField] CardFunctions cardFunctions;
+
+    private void Awake() {
+        instance = this;
+    }
 
     private void Start() {
         Screen.SetResolution(711, 400, false);
-
+        BaseCard.id = 0;
         networkedTurnManager.TurnManagerListener = this;
     }
 
@@ -17,25 +24,17 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
         if (Input.GetKeyDown(KeyCode.Space)) {
             Debug.Log("lets goo");
 
-            PlayerMove move = new PlayerMove(2, 4, MoveType.Move);
+            PlayerMove move = new PlayerMove(3, 4, MoveType.Move);
             //networkedTurnManager.SendMove(move.ToByteArray(), false);
             SendMoveToMasterClient(move, false);
-        }
-
-        if(Input.GetKeyDown(KeyCode.K)) {
-            networkedTurnManager.BeginTurn();
-        }
-
-        if(Input.GetKeyDown(KeyCode.H)) {
-            Debug.Log("ending");
-
-            PlayerMove move = new PlayerMove(8, 1, MoveType.Move);
-            //networkedTurnManager.SendMove(move.ToByteArray(), false);
-            SendMoveToMasterClient(move, true);
         }
     }
 
     #region Networked Turn Manager Functions
+
+    public void OnPlayerTurnStarts(Player player, int turn) {
+        Debug.Log(player.NickName + "'s turn");
+    }
 
     public void OnPlayerFinished(Player player, int turn, object[] move) {
         Debug.Log(player.NickName + "'s turn is over");
@@ -50,6 +49,8 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
 
     public void OnTurnBegins(int turn) {
         Debug.Log("Turn Started");
+
+        GameData.instance.CheckIfNewCardsNeeded();
     }
 
     public void OnTurnCompleted(int turn) {
@@ -63,8 +64,11 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
     public void OnCardCreated(Player owner, int turn, object[] cardData) {
         CardType cardType = (CardType)cardData[0];
         int id = (int)cardData[1];
+        int cardPlacerID = (int)cardData[2];
 
         Debug.Log(cardType + ", " + id);
+
+        cardFunctions.CreateCard(id, cardType, cardPlacerID, owner);
     }
 
     #endregion
@@ -78,24 +82,46 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
         PlayerMove move = PlayerMove.ToPlayerMove(moveObject);
         move.Print();
 
-        networkedTurnManager.SendMove(move.ToByteArray(), finished, PhotonNetwork.CurrentRoom.GetPlayer(actorNumber));
+        BaseCard card = BaseCard.FindCard(move.cardID);
+        CardPlacer cardPlacer = CardPlacer.FindCardPlacer(move.cardID);
+
+        Player p = PhotonNetwork.CurrentRoom.GetPlayer(actorNumber);
+
+        bool isMoveValid = true;
+
+        //switch(move.moveType) {
+        //    case MoveType.Move:
+        //        isMoveValid = cardFunctions.ValidateMovement(card, cardPlacer, p);
+        //        break;
+
+        //    case MoveType.Attack:
+        //        isMoveValid = cardFunctions.ValidateAttack(card, cardPlacer, p);
+        //        break;
+
+        //    default:
+        //        isMoveValid = false;
+        //        break;
+        //}
+
+        if (isMoveValid) {
+            networkedTurnManager.SendMove(move.ToByteArray(), finished, PhotonNetwork.CurrentRoom.GetPlayer(actorNumber));
+        }
+        else
+            Debug.LogWarning("Move sent by " + p.NickName + " is not valid.");
     }
 
-    void PerformMove(PlayerMove playerMove) {
-        playerMove.Print();
+    void PerformMove(PlayerMove move) {
+        BaseCard card = BaseCard.FindCard(move.cardID);
+        CardPlacer cardPlacer = CardPlacer.FindCardPlacer(move.cardPlacerID);
+        move.Print();
+
+        switch(move.moveType) {
+            case MoveType.Move:
+                cardFunctions.MoveCard(card, cardPlacer, true);
+                break;
+            case MoveType.Attack:
+                cardFunctions.Attack(card, cardPlacer);
+                break;
+        }
     }
-
-    void Attack(BaseCard attacker, CardPlacer target) {
-
-    }
-
-    void NormalCardMovement() {
-
-    }
-
-    void CardIntoPlayMovement() {
-
-    }
-
-    
 }

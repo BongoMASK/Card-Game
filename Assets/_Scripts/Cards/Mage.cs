@@ -6,7 +6,7 @@ public class Mage : BaseCard
     public override void BattleFieldMovementSystem(CardPlacer target) {
         bool canCardMove = true;
 
-        if (cardOwner.currentRoundMana < cardStats.moveCost) {
+        if (cardOwner.mana < cardStats.moveCost) {
             GameManager.instance.SetMessageError("Not enough Mana");
             canCardMove = false;
         }
