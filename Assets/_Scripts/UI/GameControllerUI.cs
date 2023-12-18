@@ -80,6 +80,7 @@ public class GameControllerUI : MonoBehaviourPunCallbacks
             return;
 
         networkedTurnManager.BeginTurn();
+        startGameButton.gameObject.SetActive(false);
     }
 
     public void EndTurn() {

@@ -35,6 +35,8 @@ public class Draggable : MonoBehaviour
             PlayerMove move = new PlayerMove(card.cardID, bestCp.id, MoveType.Move);
             GameController.instance.SendMoveToMasterClient(move, false);
         }
+        else
+            card.MoveTo(Vector3.zero);
 
         //CardValidator.instance.movementSystem.ValidateMovement(card.currentCardPos, bestCp, card); 
     }

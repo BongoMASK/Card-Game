@@ -57,12 +57,6 @@ public class GameData : MonoBehaviour {
         Invoke(nameof(SendDeckToMasterClient), 1);
     }
 
-    private void Update() { 
-        if(Input.GetKeyDown(KeyCode.S) && PhotonNetwork.IsMasterClient) {
-            CreateCardFromPlayerDeck(0, PhotonNetwork.MasterClient);
-        }
-    }
-
     public void CheckIfNewCardsNeeded() {
         if (!PhotonNetwork.IsMasterClient)
             return;
@@ -95,6 +89,12 @@ public class GameData : MonoBehaviour {
 
         Debug.LogWarning("Could not find cardID");
         return null;
+    }
+
+    public void ResetAllPlayersValues() {
+        foreach (var item in FindObjectsOfType<PlayerData>()) {
+            item.ResetBools();
+        }
     }
 
     public void SendDeckToMasterClient() {

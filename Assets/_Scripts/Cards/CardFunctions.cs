@@ -132,9 +132,14 @@ public class CardFunctions : MonoBehaviour
 
     public bool ValidateMovement(BaseCard movingCard, CardPlacer target, Player sender) {
         // Check if sender is owner of card
+        if(movingCard.cardOwner.player != sender) 
+            return false;
 
         // Check if it is in player hand
         if (movingCard.currentCardPos.pos != Vector2.zero && target.pos != Vector2.zero) {
+            if (movingCard.cardStats.cardType == CardType.Mage)
+                return MageBattleFieldMovementSystem(movingCard, target);
+
             return BattleFieldMovementSystem(movingCard, target);
         }
 
@@ -177,7 +182,42 @@ public class CardFunctions : MonoBehaviour
         return canCardMove;
     }
 
-    bool NonBattleFieldMovementSystem(BaseCard card, CardPlacer target) {
+    private bool MageBattleFieldMovementSystem(BaseCard card, CardPlacer target) {
+        bool canCardMove = true;
+
+        if (card.cardOwner.mana < card.cardStats.moveCost) {
+            GameManager.instance.SetMessageError("Not enough Mana");
+            canCardMove = false;
+        }
+
+        if (card.hasBeenMoved) {
+            GameManager.instance.SetMessageError("Card has already been moved");
+            canCardMove = false;
+        }
+
+        if (!IsWithinRange(card.currentCardPos, target, card.passiveRange)) {
+            GameManager.instance.SetMessageError("Card not in range");
+            canCardMove = false;
+        }
+
+        if (target.owner != card.cardOwner) {
+            GameManager.instance.SetMessageError("Cannot move there");
+            canCardMove = false;
+        }
+
+        if (canCardMove)
+            card.cardOwner.UsedMana(card.cardStats.moveCost);
+
+        if (target.currentCard == null) {
+            MoveCard(card, target, canCardMove);
+            return true;
+        }
+
+        // Swap cards
+        return canCardMove;
+    }
+
+    private bool NonBattleFieldMovementSystem(BaseCard card, CardPlacer target) {
         // Do this if it is in Player hand
         bool canMoveCard = card.currentCardPos.movePlacers.Contains(target);
 
@@ -200,11 +240,9 @@ public class CardFunctions : MonoBehaviour
 
                 GameControllerUI.instance.SetMessageError("Can only move 1 card to battle field once per turn");
             }
-
-            card.cardOwner.hasPlacedCard = true;
+            else
+                card.cardOwner.hasPlacedCard = true;
         }
-
-        //MoveCard(card, target, canMoveCard);
         
         return canMoveCard;
     }
@@ -236,6 +274,53 @@ public class CardFunctions : MonoBehaviour
         else {
             card.MoveTo(Vector3.zero);
         }
+    }
+
+    public void SwapCards(BaseCard card, CardPlacer cardPlacer, bool canMoveCard) {
+        SwapCards(card, cardPlacer.currentCard, canMoveCard);
+    }
+
+    public void SwapCards(BaseCard card, BaseCard otherCard, bool canMoveCard) { 
+        // Place cards in the new positions if everything is good
+        if (canMoveCard) {
+
+            CardPlacer cp1 = card.currentCardPos;
+            CardPlacer cp2 = otherCard.currentCardPos;
+
+            // Card movement requires these specific set of steps in order.
+            // All of the movement relies on these sets of steps
+
+            // Remove card from card placer
+            cp1.OnCardRemoved(card);
+            cp2.OnCardRemoved(otherCard);
+
+            // set new card position. This also starts the animation of the card moving towards the card pos
+            card.currentCardPos = cp2;
+            otherCard.currentCardPos = cp1;
+
+            // set card placer value for current card
+            cp1.currentCard = otherCard;
+            cp2.currentCard = card;
+
+            // Call Function that places the card on the thing
+            cp1.OnCardPlaced(otherCard);
+            cp2.OnCardPlaced(card);
+
+            // Recheck for all buffs on all cards
+            CheckForAllCardBuffs();
+
+            // set to true to restrict card from moving twice
+            card.hasBeenMoved = true;
+        }
+
+        // Place card back to original position if there is a problem
+        else {
+            card.MoveTo(Vector3.zero);
+        }
+    }
+
+    bool IsWithinRange(CardPlacer a, CardPlacer b, int range) {
+        return CheckDifference(a.pos, b.pos) <= range;
     }
 
     private void SendMoveToAll(BaseCard card, CardPlacer cardPlacer, MoveType moveType, Player sender) {

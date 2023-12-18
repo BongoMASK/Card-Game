@@ -20,16 +20,6 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
         networkedTurnManager.TurnManagerListener = this;
     }
 
-    private void Update() {
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            Debug.Log("lets goo");
-
-            PlayerMove move = new PlayerMove(3, 4, MoveType.Move);
-            //networkedTurnManager.SendMove(move.ToByteArray(), false);
-            SendMoveToMasterClient(move, false);
-        }
-    }
-
     #region Networked Turn Manager Functions
 
     public void OnPlayerTurnStarts(Player player, int turn) {
@@ -51,6 +41,7 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
         Debug.Log("Turn Started");
 
         GameData.instance.CheckIfNewCardsNeeded();
+        GameData.instance.ResetAllPlayersValues();
     }
 
     public void OnTurnCompleted(int turn) {
@@ -121,6 +112,9 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
                 break;
             case MoveType.Attack:
                 cardFunctions.Attack(card, cardPlacer);
+                break;
+            case MoveType.Swap:
+                cardFunctions.SwapCards(card, cardPlacer, true);
                 break;
         }
     }

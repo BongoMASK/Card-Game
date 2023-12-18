@@ -4,7 +4,7 @@ using Photon.Realtime;
 using Properties;
 using UnityEngine;
 
-public class PlayerData : MonoBehaviour
+public class PlayerData : MonoBehaviourPunCallbacks
 {
     [SerializeField] PhotonView PV;
     
@@ -142,8 +142,18 @@ public class PlayerData : MonoBehaviour
     }
 
     private void SetUpPlayerData() {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+
         mana = 0;
         currentMaxRoundMana = 0;
+        ResetBools();
+    }
+
+    public void ResetBools() {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+
         hasGivenCardToManaZone = false;
         hasMoved = false;
         hasAttacked = false;
@@ -155,6 +165,9 @@ public class PlayerData : MonoBehaviour
     }
 
     public void UsedMana(int amount) {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+
         mana -= amount;
     }
 
@@ -166,4 +179,14 @@ public class PlayerData : MonoBehaviour
 
         return null;
     }
+
+    #region PUN Callbacks
+
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps) {
+        base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
+
+        Debug.Log("things have changed");
+    }
+
+    #endregion
 }

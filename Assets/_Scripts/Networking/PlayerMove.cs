@@ -4,7 +4,8 @@ using UnityEngine;
 
 public enum MoveType {
     Move,
-    Attack
+    Attack,
+    Swap
 }
 
 public class PlayerMove

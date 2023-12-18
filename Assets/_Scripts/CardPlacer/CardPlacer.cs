@@ -24,6 +24,9 @@ public class CardPlacer : MonoBehaviour
     public int id;
 
     public static CardPlacer FindCardPlacer(int id) {
+        if(id < 0)
+            return null;
+
         foreach (var item in FindObjectsOfType<CardPlacer>()) {
             if (item.id == id) return item;
         }

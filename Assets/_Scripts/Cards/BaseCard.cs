@@ -87,6 +87,9 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     }
 
     public static BaseCard FindCard(int id) {
+        if (id < 0)
+            return null;
+        
         foreach (var item in FindObjectsOfType<BaseCard>()) {
             if (item.cardID == id) return item;
         }
@@ -144,10 +147,8 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
 
         currentCardPos.OnCardRemoved(this);
 
-        if(CardValidator.instance.allCards.Contains(this)) {
-            CardValidator.instance.allCards.Remove(this);
-            CardValidator.instance.user1Cards.Remove(this);
-            CardValidator.instance.user2Cards.Remove(this);
+        if(GameData.instance.activeCards.Contains(this)) {
+            GameData.instance.activeCards.Remove(this);
         }
 
         Destroy(gameObject, 1);
