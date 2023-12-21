@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public class ManaCardPlacer : CardPlacer
 {
     public override void OnCardPlaced(BaseCard card) {

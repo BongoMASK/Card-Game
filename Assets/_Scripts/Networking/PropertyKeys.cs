@@ -50,6 +50,6 @@ namespace Properties {
         /// <summary>
         /// If player has attacked yet
         /// </summary>
-        public static readonly string hasPlacedCardPropKey = "HasPutInManaZone";
+        public static readonly string hasPlacedCardPropKey = "HasPlacedCard";
     }
 }

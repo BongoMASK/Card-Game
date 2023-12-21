@@ -13,7 +13,7 @@ public class Draggable : MonoBehaviour
         float min = 99999;
         CardPlacer bestCp = null;
 
-        foreach (CardPlacer cp in GameData.instance.activeCardPlacers) {
+        foreach (CardPlacer cp in GameData.instance.allCardPlacers) {
             float dist = (transform.position - cp.transform.position).magnitude;
             if (dist < threshold) {
                 if (dist < min) {
@@ -28,17 +28,18 @@ public class Draggable : MonoBehaviour
             return;
         }
 
-        //card.ValidateMovement(bestCp);
-
         if (CardFunctions.instance.ValidateMovement(card, bestCp, card.cardOwner.player)) {
+            PlayerMove move;
 
-            PlayerMove move = new PlayerMove(card.cardID, bestCp.id, MoveType.Move);
+            if (card.cardStats.cardType == CardType.Mage)
+                move = new PlayerMove(card.cardID, bestCp.id, MoveType.Swap);
+            else
+                move = new PlayerMove(card.cardID, bestCp.id, MoveType.Move);
+
             GameController.instance.SendMoveToMasterClient(move, false);
         }
         else
             card.MoveTo(Vector3.zero);
-
-        //CardValidator.instance.movementSystem.ValidateMovement(card.currentCardPos, bestCp, card); 
     }
 
     #region Drag and Drop

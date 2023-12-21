@@ -7,7 +7,7 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
     public static GameController instance;
 
     [SerializeField] PhotonView PV;
-    [SerializeField] NetworkedTurnManager networkedTurnManager;
+    [SerializeField] NetworkedTurnManager networkedTurnManager; 
     [SerializeField] CardFunctions cardFunctions;
 
     private void Awake() {
@@ -16,6 +16,10 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
 
     private void Start() {
         Screen.SetResolution(711, 400, false);
+        if (!PhotonNetwork.IsMasterClient)
+            Camera.main.transform.rotation = Quaternion.Euler(0, 0, -180);
+        
+
         BaseCard.id = 0;
         networkedTurnManager.TurnManagerListener = this;
     }
@@ -39,6 +43,8 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
 
     public void OnTurnBegins(int turn) {
         Debug.Log("Turn Started");
+
+        ResetAllCards();
 
         GameData.instance.CheckIfNewCardsNeeded();
         GameData.instance.ResetAllPlayersValues();
@@ -116,6 +122,13 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
             case MoveType.Swap:
                 cardFunctions.SwapCards(card, cardPlacer, true);
                 break;
+        }
+    }
+
+    private void ResetAllCards() {
+        foreach (var item in FindObjectsOfType<BaseCard>()) {
+            item.hasBeenMoved = false;
+            item.hasAttacked = false;
         }
     }
 }

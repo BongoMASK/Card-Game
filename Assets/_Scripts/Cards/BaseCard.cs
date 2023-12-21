@@ -227,8 +227,8 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         if (currentCardPos.pos == Vector2.zero)
             return;
 
-        //ShowMovementPowers();
-        //ShowAttackPowers();
+        ShowMovementPowers();
+        ShowAttackPowers();
     }
 
     public void OnSelected(Color32 color) {
@@ -242,8 +242,8 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         if (currentCardPos.pos == Vector2.zero)
             return;
 
-        //HideMovementPowers();
-        //HideAttackPowers();
+        HideMovementPowers();
+        HideAttackPowers();
     }
 
     protected void ShowPowers() {
@@ -259,9 +259,9 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
 
         List<CardPlacer> cardPlacerList;
         if (cardOwner == GameManager.instance.user1)
-            cardPlacerList = CardValidator.instance.user1CardPlacers;
+            cardPlacerList = GameData.instance.user1CardPlacers;
         else
-            cardPlacerList = CardValidator.instance.user2CardPlacers;
+            cardPlacerList = GameData.instance.user2CardPlacers;
 
 
         foreach (CardPlacer cp in cardPlacerList) {
@@ -276,14 +276,12 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     }
 
     protected virtual void ShowMovementPowers() {
-        List<CardPlacer> cardPlacerList;
-        if (cardOwner == GameManager.instance.user1)
-            cardPlacerList = CardValidator.instance.user1CardPlacers;
-        else
-            cardPlacerList = CardValidator.instance.user2CardPlacers;
-
+        List<CardPlacer> cardPlacerList = GameData.instance.allCardPlacers;
 
         foreach (CardPlacer cp in cardPlacerList) {
+            if (cp.owner != cardOwner)
+                continue;
+
             if (cp == currentCardPos)
                 continue;
 
@@ -304,14 +302,12 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     }
 
     protected virtual void HideMovementPowers() {
-        List<CardPlacer> cardPlacerList;
-        if (cardOwner == GameManager.instance.user1)
-            cardPlacerList = CardValidator.instance.user1CardPlacers;
-        else
-            cardPlacerList = CardValidator.instance.user2CardPlacers;
-
+        List<CardPlacer> cardPlacerList = GameData.instance.allCardPlacers;
 
         foreach (CardPlacer cp in cardPlacerList) {
+            if (cp.owner != cardOwner)
+                continue;
+
             if (cp == currentCardPos)
                 continue;
 
@@ -334,83 +330,9 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
 
     #region Movement Stuff
 
-    public virtual void ValidateMovement(CardPlacer target) {
-        // Check if it is in player hand
-        if (currentCardPos.pos != Vector2.zero && target.pos != Vector2.zero) {
-            BattleFieldMovementSystem(target);
-            return;
-        }
-
-        NonBattleFieldMovementSystem(target);
-    }
-
-    public virtual void BattleFieldMovementSystem(CardPlacer target) {
-        bool canCardMove = true;
-
-        if (cardOwner.mana < cardStats.moveCost) {
-            GameManager.instance.SetMessageError("Not enough Mana");
-            canCardMove = false;
-        }
-
-        if (hasBeenMoved) {
-            GameManager.instance.SetMessageError("Card has already been moved");
-            canCardMove = false;
-        }
-
-        if (CheckDifference(currentCardPos.pos, target.pos) > 1) {
-            GameManager.instance.SetMessageError("Card not in range");
-            canCardMove = false;
-        }
-
-        if (target.currentCard != null) {
-            GameManager.instance.SetMessageError("Cannot move there");
-            canCardMove = false;
-        }
-
-        if (target.owner != cardOwner) {
-            GameManager.instance.SetMessageError("Cannot move there");
-            canCardMove = false;
-        }
-
-        if (canCardMove)
-            cardOwner.UsedMana(cardStats.moveCost);
-
-        MoveCard(target, canCardMove);
-    }
-
     protected int CheckDifference(Vector2 v1, Vector2 v2) {
         Vector2 v = v2 - v1;
         return (int)v.magnitude;
-    }
-
-    void NonBattleFieldMovementSystem(CardPlacer target) {
-        // Do this if it is in Player hand
-        bool canMoveCard = currentCardPos.movePlacers.Contains(target);
-
-        if (target.currentCard != null)
-            canMoveCard = false;
-
-        // Check if it is a mana card placer.
-        // User can only sacrifice card to mana placer once per round
-        if (target as ManaCardPlacer != null) {
-            if (cardOwner.hasGivenCardToManaZone) {
-                canMoveCard = false;
-
-                GameManager.instance.SetMessageError("Can only move 1 card to mana zone per turn");
-            }
-        }
-
-        else if (target as BackLineCardPlacer || target as FrontlineCardPlacer) {
-            if (cardOwner.hasPlacedCard) {
-                canMoveCard = false;
-
-                GameManager.instance.SetMessageError("Can only move 1 card to battle field once per turn");
-            }
-
-            cardOwner.hasPlacedCard = true;
-        }
-
-        MoveCard(target, canMoveCard);
     }
 
     public void MoveCard(CardPlacer target, bool canMoveCard, bool moved = true) {
@@ -482,7 +404,7 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     }
 
     void CheckAllCardsBuffs() {
-        foreach (BaseCard card in CardValidator.instance.allCards) {
+        foreach (BaseCard card in GameData.instance.activeCards) {
             card.CheckForBuffs();
         }
     }
@@ -492,7 +414,7 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         if (currentCardPos.pos == Vector2.zero)
             return;
 
-        foreach (BaseCard card in CardValidator.instance.allCards) {
+        foreach (BaseCard card in GameData.instance.activeCards) {
             card.ApplyPassive(currentCardPos);
         }
     }

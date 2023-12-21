@@ -45,17 +45,12 @@ public class CardFunctions : MonoBehaviour
         // will work after setting up attack placers
         bool b = ValidateAttack(attacker.currentCardPos, target.currentCardPos);
 
-        if (b) {
-            attacker.Attack(target);
-        }
-
         return b;
     }
 
     private bool ValidateAttack(CardPlacer attacker, CardPlacer target) {
         bool b = attacker.attackPlacers.Contains(target);
-
-        return b;
+        return b && CanAttack(attacker.currentCard, target.currentCard);
     }
 
     public void Attack(BaseCard attacker, CardPlacer target) {
@@ -82,6 +77,29 @@ public class CardFunctions : MonoBehaviour
         }
     }
 
+    private bool CanAttack(BaseCard attacker, BaseCard other) {
+        if (attacker.cardOwner.mana < attacker.cardStats.manaCost) {
+            GameControllerUI.instance.SetMessageError("Not enough Mana");
+            return false;
+        }
+
+        if (attacker.hasAttacked) {
+            GameControllerUI.instance.SetMessageError("Card has already attacked");
+            return false;
+        }
+
+        if (!attacker.IsWithinAttackRange()) {
+            GameControllerUI.instance.SetMessageError("Card not in range");
+            return false;
+        }
+
+        bool b = attacker.effectiveDamage >= other.effectiveHealth;
+        if (!b)
+            GameControllerUI.instance.SetMessageError("Not enough damage power");
+
+        return b;
+    }
+
     /// <summary>
     /// This code runs on the card that is being attacked.
     /// It searches for blockers that can protect the card
@@ -89,13 +107,12 @@ public class CardFunctions : MonoBehaviour
     /// <param name="attackerCard"></param>
     /// <returns></returns>
     public bool CheckForBlockers(BaseCard target, BaseCard attackerCard) {
-        List<BaseCard> cardList;
-        if (target.cardOwner.lockInput)
-            cardList = CardValidator.instance.user1Cards;
-        else
-            cardList = CardValidator.instance.user2Cards;
+        List<BaseCard> cardList = GameData.instance.activeCards;
 
         foreach (BaseCard blockerCard in cardList) {
+            if (blockerCard.cardOwner != target.cardOwner)
+                continue;
+
             if (blockerCard == this)
                 continue;
 
@@ -186,22 +203,22 @@ public class CardFunctions : MonoBehaviour
         bool canCardMove = true;
 
         if (card.cardOwner.mana < card.cardStats.moveCost) {
-            GameManager.instance.SetMessageError("Not enough Mana");
+            GameControllerUI.instance.SetMessageError("Not enough Mana");
             canCardMove = false;
         }
 
         if (card.hasBeenMoved) {
-            GameManager.instance.SetMessageError("Card has already been moved");
+            GameControllerUI.instance.SetMessageError("Card has already been moved");
             canCardMove = false;
         }
 
         if (!IsWithinRange(card.currentCardPos, target, card.passiveRange)) {
-            GameManager.instance.SetMessageError("Card not in range");
+            GameControllerUI.instance.SetMessageError("Card not in range");
             canCardMove = false;
         }
 
         if (target.owner != card.cardOwner) {
-            GameManager.instance.SetMessageError("Cannot move there");
+            GameControllerUI.instance.SetMessageError("Cannot move there");
             canCardMove = false;
         }
 
@@ -218,6 +235,14 @@ public class CardFunctions : MonoBehaviour
     }
 
     private bool NonBattleFieldMovementSystem(BaseCard card, CardPlacer target) {
+        Debug.Log(card.cardOwner.hasGivenCardToManaZone);
+
+        // Cannot move card to enemy zone
+        if (card.cardOwner != target.owner) {
+            GameControllerUI.instance.SetMessageError("Cannot move card to enemy's area");
+            return false;
+        }
+
         // Do this if it is in Player hand
         bool canMoveCard = card.currentCardPos.movePlacers.Contains(target);
 
@@ -232,6 +257,8 @@ public class CardFunctions : MonoBehaviour
 
                 GameControllerUI.instance.SetMessageError("Can only move 1 card to mana zone per turn");
             }
+            else
+                card.cardOwner.hasGivenCardToManaZone = true;
         }
 
         else if (target as BackLineCardPlacer || target as FrontlineCardPlacer) {
@@ -277,7 +304,11 @@ public class CardFunctions : MonoBehaviour
     }
 
     public void SwapCards(BaseCard card, CardPlacer cardPlacer, bool canMoveCard) {
-        SwapCards(card, cardPlacer.currentCard, canMoveCard);
+        if (cardPlacer.currentCard != null)
+            SwapCards(card, cardPlacer.currentCard, canMoveCard);
+
+        else
+            MoveCard(card, cardPlacer, canMoveCard);
     }
 
     public void SwapCards(BaseCard card, BaseCard otherCard, bool canMoveCard) { 
@@ -352,6 +383,7 @@ public class CardFunctions : MonoBehaviour
                 return;
         }
 
+        c.transform.rotation = Quaternion.Euler(0, 0, Camera.main.transform.rotation.eulerAngles.z);
         CardPlacer cp = CardPlacer.FindCardPlacer(cardPlacerID);
 
         c.cardID = id;

@@ -4,8 +4,6 @@ using Photon.Realtime;
 using Properties;
 using System.Collections;
 using TMPro;
-//using UnityEditor;
-//using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -65,11 +63,13 @@ public class GameControllerUI : MonoBehaviourPunCallbacks
             startGameButton.gameObject.SetActive(false);
     }
 
-    private void OnEnable() {
+    public override void OnEnable() {
+        base.OnEnable();
         GameData.instance.OnCardSelected.AddListener(cardData.SetUpCardData);
     }
 
-    private void OnDisable() {
+    public override void OnDisable() {
+        base.OnDisable();
         GameData.instance.OnCardSelected.RemoveListener(cardData.SetUpCardData);
     }
 
@@ -101,14 +101,13 @@ public class GameControllerUI : MonoBehaviourPunCallbacks
         }
 
         for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++) {
-            AddPlayerTextToPlayerListParent(PhotonNetwork.PlayerList[i].NickName, i);
+            AddPlayerTextToPlayerListParent(PhotonNetwork.PlayerList[i], i);
         }
     }
 
-    void AddPlayerTextToPlayerListParent(string playerName, int index) {
+    void AddPlayerTextToPlayerListParent(Player p, int index) {
         GameObject g = Instantiate(textPrefab, playerListParent);
-        g.GetComponentInChildren<Image>().color = textPrefabColours[index];
-        g.GetComponentInChildren<TMP_Text>().text = playerName;
+        g.GetComponent<PlayerListItem>().SetUpPlayerListItem(p, textPrefabColours[index], networkedTurnManager.TurnDuration);
     }
 
     Coroutine msgCor;
@@ -165,26 +164,3 @@ public class GameControllerUI : MonoBehaviourPunCallbacks
 
     #endregion
 }
-
-//[CustomEditor(typeof(GameControllerUI))]
-//public class GameControllerUIEditor :Editor {
-//    public override void OnInspectorGUI() {
-//        base.OnInspectorGUI();
-
-//        if (GUILayout.Button("Set Card Placers")) {
-//            SetCardPlacersID();
-//        }
-//    }
-
-//    private void SetCardPlacersID() {
-//        CardPlacer.lastId = 0;
-
-//        CardPlacer[] cardPlacers = FindObjectsOfType<CardPlacer>();
-//        foreach (var item in cardPlacers) {
-//            item.id = CardPlacer.lastId++;
-
-//            EditorUtility.SetDirty(item);
-//            EditorSceneManager.MarkSceneDirty(item.gameObject.scene);
-//        }
-//    }
-//}

@@ -1,17 +1,20 @@
 using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
-//using UnityEditor;
-//using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class GameData : MonoBehaviour {
-
     public static GameData instance { get; private set; }
 
     public List<BaseCard> activeCards = new List<BaseCard>();
-    public List<CardPlacer> activeCardPlacers = new List<CardPlacer>();
+
+    public List<CardPlacer> allCardPlacers = new List<CardPlacer>();
+    public List<CardPlacer> user1CardPlacers = new List<CardPlacer>();
+    public List<CardPlacer> user2CardPlacers = new List<CardPlacer>();
+
+    [Space]
+    public List<PlayerData> playerDatas = new List<PlayerData>();
 
     public Dictionary<Player, Deck> playerDecks = new Dictionary<Player, Deck>();
 
@@ -23,6 +26,8 @@ public class GameData : MonoBehaviour {
         set {
 
             if (CardFunctions.instance.ValidateAttack(_currentSelectedCard, value)) {
+                PlayerMove move = new PlayerMove(_currentSelectedCard.cardID, value.currentCardPos.id, MoveType.Attack);
+                GameController.instance.SendMoveToMasterClient(move, false);
                 return;
             }
 
@@ -92,6 +97,9 @@ public class GameData : MonoBehaviour {
     }
 
     public void ResetAllPlayersValues() {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+
         foreach (var item in FindObjectsOfType<PlayerData>()) {
             item.ResetBools();
         }
@@ -111,25 +119,3 @@ public class GameData : MonoBehaviour {
         playerDecks[p].Print();
     }
 }
-
-//[CustomEditor(typeof(GameData))]
-//public class GameDataEditor : Editor {
-
-//    GameData gameData;
-
-//    public override void OnInspectorGUI() {
-//        base.OnInspectorGUI();
-
-//        if (GUILayout.Button("Set Card Placers")) {
-//            gameData = (GameData)target;
-//            SetCardPlacers();
-//        }
-//    }
-
-//    private void SetCardPlacers() {
-//        gameData.activeCardPlacers = new List<CardPlacer>(FindObjectsOfType<CardPlacer>());
-
-//        EditorUtility.SetDirty(gameData);
-//        EditorSceneManager.MarkSceneDirty(gameData.gameObject.scene);
-//    }
-//}

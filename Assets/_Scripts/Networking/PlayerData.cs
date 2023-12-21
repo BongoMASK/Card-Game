@@ -6,11 +6,12 @@ using UnityEngine;
 
 public class PlayerData : MonoBehaviourPunCallbacks
 {
-    [SerializeField] PhotonView PV;
+    //[SerializeField] PhotonView PV;
+    [SerializeField] int playerIndex = 0;
     
     public HandCardPlacer[] handCardPlacers;
     
-    public Player player { get; private set; }
+    public Player player => PhotonNetwork.PlayerList[playerIndex];
 
     public string username => player.NickName;
 
@@ -38,21 +39,21 @@ public class PlayerData : MonoBehaviourPunCallbacks
     }
 
     public bool hasMoved {
-        get => (bool)player.CustomProperties[PlayerProps.hasPutInManaZonePropKey];
+        get => (bool)player.CustomProperties[PlayerProps.hasMovedPropKey];
         set {
             SetHasMoved(value);
         }
     }
 
     public bool hasAttacked {
-        get => (bool)player.CustomProperties[PlayerProps.hasPutInManaZonePropKey];
+        get => (bool)player.CustomProperties[PlayerProps.hasAttackedPropKey];
         set {
             SetHasAttacked(value);
         }
     }
 
     public bool hasPlacedCard {
-        get => (bool)player.CustomProperties[PlayerProps.hasPutInManaZonePropKey];
+        get => (bool)player.CustomProperties[PlayerProps.hasPlacedCardPropKey];
         set {
             SetHasPlacedCard(value);
         }
@@ -147,7 +148,11 @@ public class PlayerData : MonoBehaviourPunCallbacks
 
         mana = 0;
         currentMaxRoundMana = 0;
-        ResetBools();
+
+        hasGivenCardToManaZone = false;
+        hasMoved = false;
+        hasAttacked = false;
+        hasPlacedCard = false;
     }
 
     public void ResetBools() {
@@ -158,10 +163,12 @@ public class PlayerData : MonoBehaviourPunCallbacks
         hasMoved = false;
         hasAttacked = false;
         hasPlacedCard = false;
+
+        mana = currentMaxRoundMana;
     }
 
     private void FindPlayer() {
-        player = PhotonView.Find(PV.ViewID).Owner;
+        //player = PhotonView.Find(PV.ViewID).Owner;
     }
 
     public void UsedMana(int amount) {
@@ -184,8 +191,6 @@ public class PlayerData : MonoBehaviourPunCallbacks
 
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps) {
         base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
-
-        Debug.Log("things have changed");
     }
 
     #endregion

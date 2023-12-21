@@ -139,9 +139,12 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
     void Update() {
         if (Turn > 0 && this.IsOver && !_isOverCallProcessed) {
             _isOverCallProcessed = true;
+            
             this.TurnManagerListener.OnTurnTimeEnds(this.Turn);
-        }
 
+            //if (PhotonNetwork.IsMasterClient)
+            //    SendMove(null, true, activePlayerTurn);
+        }
     }
 
     #endregion
@@ -261,7 +264,8 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
                     object[] move = (object[])evTable["move"];
 
                     if (turn == this.Turn) {
-                        this.playerOrder.Dequeue();
+                        if (!this.playerOrder.TryDequeue(out Player result))
+                            Debug.LogError("Dequeue in player list failed.");
 
                         this.TurnManagerListener.OnPlayerFinished(sender, turn, move);
                     }
@@ -461,7 +465,8 @@ public static class TurnExtensions {
         }
 
         Hashtable turnProps = new Hashtable();
-        turnProps.Add(ActivePlayerPropKey, player);
+        turnProps[ActivePlayerPropKey] = player;
+        turnProps[TurnStartTimePropKey] = PhotonNetwork.ServerTimestamp;
 
         room.SetCustomProperties(turnProps);
     }

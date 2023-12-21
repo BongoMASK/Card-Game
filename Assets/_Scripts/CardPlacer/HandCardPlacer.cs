@@ -22,22 +22,4 @@ public class HandCardPlacer : CardPlacer
         card.hasAttacked = true;
         card.hasBeenMoved = true;
     }
-
-    void GetCard() {
-        if (currentCard != null)
-            return;
-
-        StartCoroutine(GetCardFromDeck());
-    }
-
-    IEnumerator GetCardFromDeck() {
-        char c = name[name.Length - 2];
-        int i = int.Parse(c.ToString());
-
-        Debug.Log(i);
-
-        yield return new WaitForSeconds((float)i / 2);
-
-        deck.currentCard.MoveCard(this, true);
-    }
 }

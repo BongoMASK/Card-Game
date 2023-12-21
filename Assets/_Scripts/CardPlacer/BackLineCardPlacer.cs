@@ -4,18 +4,16 @@ using UnityEngine;
 public class BackLineCardPlacer : CardPlacer
 {
     private void Start() {
-        //Invoke(nameof(SetAttackPlacers), 0.5f);
+        Invoke(nameof(SetAttackPlacers), 0.5f);
     }
 
     void SetAttackPlacers() {
-        List<CardPlacer> cardPlacerList;
-
-        if (owner == GameManager.instance.user2)
-            cardPlacerList = CardValidator.instance.user1CardPlacers;
-        else
-            cardPlacerList = CardValidator.instance.user2CardPlacers;
+        List<CardPlacer> cardPlacerList = GameData.instance.allCardPlacers;
 
         foreach (CardPlacer cp in cardPlacerList) {
+            if (cp.owner == owner)
+                continue;
+
             if (cp is not FrontlineCardPlacer)
                 continue;
 
