@@ -72,18 +72,17 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
 
     private void OnEnable() {
         OnDie += Die;
-        //OnDie += CardValidator.instance.CheckForAllCardBuffs;
+        OnDie += CardFunctions.instance.CheckForAllCardBuffs;
         //GameManager.instance.OnTurnBegin += HasBeenMovedOverride;
     }
 
     private void OnDisable() {
         OnDie -= Die;
-        //OnDie -= CardValidator.instance.CheckForAllCardBuffs;
+        OnDie -= CardFunctions.instance.CheckForAllCardBuffs;
         //GameManager.instance.OnTurnBegin -= HasBeenMovedOverride;
     }
 
     public virtual void ApplyPassive(CardPlacer target) {
-
     }
 
     public static BaseCard FindCard(int id) {

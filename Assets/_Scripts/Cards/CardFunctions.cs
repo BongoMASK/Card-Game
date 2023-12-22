@@ -1,3 +1,4 @@
+using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,20 +19,22 @@ public class CardFunctions : MonoBehaviour
     #region Attack Functions
 
     public bool ValidateAttack(BaseCard attacker, CardPlacer target, Player attackingPlayer) {
-        if (attacker == null || target == null)
-            return false;
+        //if (attacker == null || target == null)
+        //    return false;
 
-        if (attacker.cardOwner.lockInput)
-            return false;
+        //if (attacker.cardOwner.lockInput)
+        //    return false;
 
-        // will work after setting up attack placers
-        bool b = ValidateAttack(attacker.currentCardPos, target);
+        //// will work after setting up attack placers
+        //bool b = ValidateAttack(attacker.currentCardPos, target);
 
-        if (b) {
-            attacker.Attack(target.currentCard);
-        }
+        //if (b) {
+        //    attacker.Attack(target.currentCard);
+        //}
 
-        return b;
+        //return b;
+
+        return ValidateAttack(attacker, target.currentCard);
     }
 
     public bool ValidateAttack(BaseCard attacker, BaseCard target) {
@@ -44,6 +47,10 @@ public class CardFunctions : MonoBehaviour
 
         // will work after setting up attack placers
         bool b = ValidateAttack(attacker.currentCardPos, target.currentCardPos);
+        
+        if(b) {
+            attacker.cardOwner.UsedMana(attacker.cardStats.manaCost); 
+        }
 
         return b;
     }
@@ -60,21 +67,16 @@ public class CardFunctions : MonoBehaviour
     public void Attack(BaseCard attacker, BaseCard target) {
         Debug.Log(name + " trying to attack " + target.name);
 
-        if (attacker.CanAttack(target)) {
+        bool b = CheckForBlockers(target, attacker);
 
-            //cardOwner.UsedMana(cardStats.manaCost);
-
-            bool b = CheckForBlockers(target, attacker);
-
-            if (!b) {
-                GameControllerUI.instance.SetMessage(attacker.cardStats.cardName + " attacked " + target.cardStats.cardName);
-                target.TakeDamage(attacker.effectiveDamage);
-            }
-
-            //hasAttacked = true;
-
-            AudioManager.instance.Play(SoundNames.attack);
+        if (!b) {
+            GameControllerUI.instance.SetMessage(attacker.cardStats.cardName + " attacked " + target.cardStats.cardName);
+            target.TakeDamage(attacker.effectiveDamage);
         }
+
+        attacker.hasAttacked = true;
+
+        AudioManager.instance.Play(SoundNames.attack);
     }
 
     private bool CanAttack(BaseCard attacker, BaseCard other) {
@@ -123,7 +125,7 @@ public class CardFunctions : MonoBehaviour
 
                     target.GetComponent<Animator>()?.SetTrigger("shine");
 
-                    if (attackerCard.CanAttack(blockerCard)) {
+                    if (CanAttack(attackerCard, blockerCard)) {
                         GameControllerUI.instance.SetMessage(attackerCard.cardStats.cardName + "'s attack to " + target.cardStats.cardName
                             + " was blocked by " + blockerCard.cardStats.cardName);
 
@@ -235,10 +237,9 @@ public class CardFunctions : MonoBehaviour
     }
 
     private bool NonBattleFieldMovementSystem(BaseCard card, CardPlacer target) {
-        Debug.Log(card.cardOwner.hasGivenCardToManaZone);
-
         // Cannot move card to enemy zone
         if (card.cardOwner != target.owner) {
+            Debug.Log("fjdsklajfdlksajfdsajklfdsakfdklsafkdsaklfdskafjkdsajlfkdas");
             GameControllerUI.instance.SetMessageError("Cannot move card to enemy's area");
             return false;
         }
@@ -248,6 +249,8 @@ public class CardFunctions : MonoBehaviour
 
         if (target.currentCard != null)
             canMoveCard = false;
+
+        Debug.Log("HEYOOOO" + canMoveCard);
 
         // Check if it is a mana card placer.
         // User can only sacrifice card to mana placer once per round
@@ -270,7 +273,9 @@ public class CardFunctions : MonoBehaviour
             else
                 card.cardOwner.hasPlacedCard = true;
         }
-        
+
+        Debug.Log("HEYOOOO2" + canMoveCard);
+
         return canMoveCard;
     }
 
@@ -354,11 +359,6 @@ public class CardFunctions : MonoBehaviour
         return CheckDifference(a.pos, b.pos) <= range;
     }
 
-    private void SendMoveToAll(BaseCard card, CardPlacer cardPlacer, MoveType moveType, Player sender) {
-        PlayerMove move = new PlayerMove(card.cardID, cardPlacer.id, moveType);
-        networkedTurnManager.SendMove(move.ToByteArray(), false, sender);
-    }
-
     #endregion
 
     #region Card Creation
@@ -392,6 +392,8 @@ public class CardFunctions : MonoBehaviour
         c.cardOwner = cp.owner;
 
         BaseCard.id = id + 1;
+
+        GameData.instance.activeCards.Add(c);
     }
 
     #endregion
@@ -399,6 +401,8 @@ public class CardFunctions : MonoBehaviour
     #region Buffs / Debuffs
 
     public void CheckForAllCardBuffs() {
+        Debug.Log("Checking stuff");
+
         foreach (BaseCard card in GameData.instance.activeCards) {
             card.RemoveAllBuffs();
             card.CheckForBuffs();

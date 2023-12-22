@@ -15,6 +15,8 @@ public class Tank : BaseCard
             base.ApplyPassive(target);
 
             target.currentCard.ApplyHealthBuff(1);
+
+            Debug.Log(this.cardStats.cardName + " applying damage buff to " + target.currentCard.cardStats.cardName);
         }
     }
 

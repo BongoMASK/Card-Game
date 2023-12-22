@@ -15,11 +15,9 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
     }
 
     private void Start() {
-        Screen.SetResolution(711, 400, false);
         if (!PhotonNetwork.IsMasterClient)
             Camera.main.transform.rotation = Quaternion.Euler(0, 0, -180);
         
-
         BaseCard.id = 0;
         networkedTurnManager.TurnManagerListener = this;
     }
@@ -86,25 +84,37 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
 
         bool isMoveValid = true;
 
-        //switch(move.moveType) {
-        //    case MoveType.Move:
-        //        isMoveValid = cardFunctions.ValidateMovement(card, cardPlacer, p);
-        //        break;
+        if (!PhotonNetwork.IsMasterClient) {
+            switch (move.moveType) {
+                case MoveType.Move:
+                    isMoveValid = cardFunctions.ValidateMovement(card, cardPlacer, p);
+                    Debug.Log("HEEYYOOOOO3" + isMoveValid);
+                    break;
 
-        //    case MoveType.Attack:
-        //        isMoveValid = cardFunctions.ValidateAttack(card, cardPlacer, p);
-        //        break;
+                case MoveType.Swap:
+                    isMoveValid = cardFunctions.ValidateMovement(card, cardPlacer, p);
+                    Debug.Log("HEEYYOOOOO3" + isMoveValid);
+                    break;
 
-        //    default:
-        //        isMoveValid = false;
-        //        break;
-        //}
+                case MoveType.Attack:
+                    isMoveValid = cardFunctions.ValidateAttack(card, cardPlacer, p);
+                    break;
+
+                case MoveType.Finish:
+                    isMoveValid = p == PhotonNetwork.CurrentRoom.GetActivePlayer();
+                    break;
+
+                default:
+                    isMoveValid = false;
+                    break;
+            }
+        }
 
         if (isMoveValid) {
-            networkedTurnManager.SendMove(move.ToByteArray(), finished, PhotonNetwork.CurrentRoom.GetPlayer(actorNumber));
+            networkedTurnManager.SendMove(move.ToByteArray(), finished, p);
         }
         else
-            Debug.LogWarning("Move sent by " + p.NickName + " is not valid.");
+            Debug.LogWarning("Move sent by " + p.NickName + " is not valid. Player may be cheating.");
     }
 
     void PerformMove(PlayerMove move) {

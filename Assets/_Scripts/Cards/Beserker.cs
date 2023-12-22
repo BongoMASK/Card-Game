@@ -14,6 +14,8 @@ public class Beserker : BaseCard
             base.ApplyPassive(target);
 
             target.currentCard.ApplyDamageBuff(1);
+
+            Debug.Log(this.cardStats.cardName + " applying damage buff to " + target.currentCard.cardStats.cardName);
         }
     }
 

@@ -122,7 +122,7 @@ public class PlayerData : MonoBehaviourPunCallbacks
 
         player.SetCustomProperties(playerProps);
     }
-
+     
     private void SetHasPlacedCard(bool value) {
         Room room = PhotonNetwork.CurrentRoom;
         if (room == null || room.CustomProperties == null) {
@@ -172,9 +172,6 @@ public class PlayerData : MonoBehaviourPunCallbacks
     }
 
     public void UsedMana(int amount) {
-        if (!PhotonNetwork.IsMasterClient)
-            return;
-
         mana -= amount;
     }
 

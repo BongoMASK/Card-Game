@@ -84,7 +84,7 @@ public class GameControllerUI : MonoBehaviourPunCallbacks
     }
 
     public void EndTurn() {
-        gameController.SendMoveToMasterClient(new PlayerMove(-1, -1, MoveType.Move), true);
+        gameController.SendMoveToMasterClient(new PlayerMove(-1, -1, MoveType.Finish), true);
     }
 
     #endregion
@@ -124,6 +124,7 @@ public class GameControllerUI : MonoBehaviourPunCallbacks
             StopCoroutine(msgCor);
 
         msgCor = StartCoroutine(RemoveMessage());
+        Debug.Log(message);
     }
 
     IEnumerator RemoveMessage() {
