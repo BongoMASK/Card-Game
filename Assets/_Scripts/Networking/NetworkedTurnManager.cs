@@ -1,13 +1,3 @@
-// ----------------------------------------------------------------------------
-// <copyright file="PunTurnManager.cs" company="Exit Games GmbH">
-//   PhotonNetwork Framework for Unity - Copyright (C) 2018 Exit Games GmbH
-// </copyright>
-// <summary>
-//  Manager for Turn Based games, using PUN
-// </summary>
-// <author>developer@exitgames.com</author>
-// ----------------------------------------------------------------------------
-
 using System.Collections.Generic;
 
 using UnityEngine;
@@ -17,6 +7,7 @@ using Photon.Realtime;
 
 using ExitGames.Client.Photon;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
+using Properties;
 
 /// <summary>
 /// Pun turnBased Game manager.
@@ -214,7 +205,26 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
     /// Sets player turn order
     /// </summary>
     public void SetPlayerOrder() {
-        playerOrder = new Queue<Player>(PhotonNetwork.PlayerList);
+        List<Player> list = new List<Player>(PhotonNetwork.PlayerList);
+
+        // sorting list based on mana
+        for (int i = 0; i < list.Count - 1; i++) {
+            bool swapped = false;
+            for (int j = 0; j < list.Count - i - 1; j++) {
+                if ((int)list[j].CustomProperties[PlayerProps.ManaPropKey] < (int)list[j+1].CustomProperties[PlayerProps.ManaPropKey]) {
+                    Player t = list[j];
+                    list[j] = list[j + 1];
+                    list[j + 1] = t;
+
+                    swapped = true;
+                }
+            }
+
+            if (!swapped)
+                break;
+        }
+
+        playerOrder = new Queue<Player>(list);
     }
 
     public void SetActivePlayer() {
@@ -313,6 +323,7 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
             _isOverCallProcessed = false;
 
             SetPlayerOrder();
+
             this.TurnManagerListener.OnTurnBegins(this.Turn);
             SetActivePlayer();
         }
