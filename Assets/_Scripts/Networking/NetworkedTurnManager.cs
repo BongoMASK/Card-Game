@@ -8,6 +8,7 @@ using Photon.Realtime;
 using ExitGames.Client.Photon;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 using Properties;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Pun turnBased Game manager.
@@ -87,7 +88,7 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
     private Queue<Player> playerOrder = new Queue<Player>();
 
     /// <summary>
-    /// Gets current active player turn
+    /// Gets the player whose turn it is
     /// </summary>
     public Player activePlayerTurn {
         get { 
@@ -168,9 +169,6 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
 
         byte evCode = (finished) ? EvFinalMove : EvMove;
         PhotonNetwork.RaiseEvent(evCode, moveHt, new RaiseEventOptions() { CachingOption = EventCaching.AddToRoomCache }, SendOptions.SendReliable);
-        if (finished) {
-            sender.SetFinishedTurn(Turn);
-        }
 
         // the server won't send the event back to the origin (by default). to get the event, call it locally
         // (note: the order of events might be mixed up as we do this locally)
@@ -279,7 +277,6 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
 
                         this.TurnManagerListener.OnPlayerFinished(sender, turn, move);
                     }
-                    Debug.Log(IsCompletedByAll);
 
                     if (IsCompletedByAll) {
                         this.TurnManagerListener.OnTurnCompleted(this.Turn);
@@ -338,6 +335,7 @@ public class NetworkedTurnManager : MonoBehaviourPunCallbacks, IOnEventCallback 
 
         // Fail safe
         PhotonNetwork.LeaveRoom();
+        SceneManager.LoadScene(0);
     }
 
     #endregion
@@ -496,36 +494,4 @@ public static class TurnExtensions {
         return (Player)room.CustomProperties[ActivePlayerPropKey];
     }
 
-    /// <summary>
-    /// gets the player's finished turn (from the ROOM properties)
-    /// </summary>
-    /// <returns>The finished turn index</returns>
-    /// <param name="player">Player reference</param>
-    public static int GetFinishedTurn(this Player player) {
-        Room room = PhotonNetwork.CurrentRoom;
-        if (room == null || room.CustomProperties == null || !room.CustomProperties.ContainsKey(TurnPropKey)) {
-            return 0;
-        }
-
-        string propKey = FinishedTurnPropKey + player.ActorNumber;
-        return (int)room.CustomProperties[propKey];
-    }
-
-    /// <summary>
-    /// Sets the player's finished turn (in the ROOM properties)
-    /// </summary>
-    /// <param name="player">Player Reference</param>
-    /// <param name="turn">Turn Index</param>
-    public static void SetFinishedTurn(this Player player, int turn) {
-        Room room = PhotonNetwork.CurrentRoom;
-        if (room == null || room.CustomProperties == null) {
-            return;
-        }
-
-        string propKey = FinishedTurnPropKey + player.ActorNumber;
-        Hashtable finishedTurnProp = new Hashtable();
-        finishedTurnProp[propKey] = turn;
-
-        room.SetCustomProperties(finishedTurnProp);
-    }
 }

@@ -65,11 +65,6 @@ PrefabInstance:
       objectReference: {fileID: 4378990209675348492}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1de10378eb89ac547bf11f4a407e8c55, type: 3}
---- !u!212 &63470014819743171 stripped
-SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 3616948787889607829, guid: 1de10378eb89ac547bf11f4a407e8c55, type: 3}
-  m_PrefabInstance: {fileID: 3661574270767112534}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &5320883593272465557 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8865077523860240835, guid: 1de10378eb89ac547bf11f4a407e8c55, type: 3}
@@ -93,9 +88,13 @@ MonoBehaviour:
   hasAttacked: 0
   cardOwner: {fileID: 0}
   cardID: 0
-  border: {fileID: 63470014819743171}
+  border: {fileID: 7346729090102813846}
   animator: {fileID: 7878540613311062566}
-  PV: {fileID: 0}
+--- !u!212 &7346729090102813846 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 6279237552269673920, guid: 1de10378eb89ac547bf11f4a407e8c55, type: 3}
+  m_PrefabInstance: {fileID: 3661574270767112534}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &7878540613311062566 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 6883387629089080176, guid: 1de10378eb89ac547bf11f4a407e8c55, type: 3}

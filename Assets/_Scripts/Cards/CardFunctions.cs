@@ -254,7 +254,7 @@ public class CardFunctions : MonoBehaviour
 
         // Check if it is a mana card placer.
         // User can only sacrifice card to mana placer once per round
-        if (target as ManaCardPlacer != null) {
+        if (target as ManaZoneCardPlacer) {
             if (card.cardOwner.hasGivenCardToManaZone) {
                 canMoveCard = false;
 

@@ -8,11 +8,14 @@ public class ShowHand : MonoBehaviour
 
     Coroutine currentCoroutine;
 
+    [SerializeField] Vector2 targetPosOffset;
+
     private void Start() {
         startPos = transform.localPosition;  
         
         targetPos = transform.localPosition;
-        targetPos.y = -3.54f;
+        targetPos += targetPosOffset;
+        //targetPos.y = -3.54f;
     }
 
     private void OnMouseEnter() {

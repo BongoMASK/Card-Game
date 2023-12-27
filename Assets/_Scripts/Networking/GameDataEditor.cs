@@ -9,6 +9,7 @@
 //        base.OnInspectorGUI();
 
 //        if (GUILayout.Button("Set Card Placers")) {
+//            SetCardPlacersID();
 //            SetCardPlacers();
 //        }
 //    }
@@ -21,13 +22,31 @@
 //        gameData.user2CardPlacers.Clear();
 
 //        foreach (var item in gameData.allCardPlacers) {
-//            if (item.id > 21)
+//            if (item.id > gameData.allCardPlacers.Count / 2 - 1) {
 //                gameData.user1CardPlacers.Add(item);
-//            else
+//                item.owner = PlayerData.FindPlayerData(0);
+//            }
+//            else {
 //                gameData.user2CardPlacers.Add(item);
+//                item.owner = PlayerData.FindPlayerData(1);
+//            }
 //        }
 
 //        EditorUtility.SetDirty(gameData);
 //        EditorSceneManager.MarkSceneDirty(gameData.gameObject.scene);
+//    }
+
+//    private void SetCardPlacersID() {
+//        CardPlacer.lastId = 0;
+
+//        CardPlacer[] cardPlacers = FindObjectsOfType<CardPlacer>();
+
+//        foreach (var item in cardPlacers) {
+//            item.id = CardPlacer.lastId++;
+
+//            EditorUtility.SetDirty(item);
+//        }
+
+//        EditorSceneManager.MarkSceneDirty(((GameData)target).gameObject.scene);
 //    }
 //}

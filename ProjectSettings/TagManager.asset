@@ -44,3 +44,6 @@ TagManager:
   - name: Hand Layer
     uniqueID: 2740621201
     locked: 0
+  - name: Card Layer
+    uniqueID: 1927644551
+    locked: 0

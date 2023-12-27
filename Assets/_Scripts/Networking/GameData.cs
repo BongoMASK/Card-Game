@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
+/// <summary>
+/// This class stores all the active cards, card placer, player info, etc.
+/// Also, stores the deck created by the player
+/// </summary>
 public class GameData : MonoBehaviour {
     public static GameData instance { get; private set; }
 
@@ -14,8 +18,6 @@ public class GameData : MonoBehaviour {
     public List<CardPlacer> user2CardPlacers = new List<CardPlacer>();
 
     [Space]
-    public List<PlayerData> playerDatas = new List<PlayerData>();
-
     public Dictionary<Player, Deck> playerDecks = new Dictionary<Player, Deck>();
 
     private BaseCard _currentSelectedCard;

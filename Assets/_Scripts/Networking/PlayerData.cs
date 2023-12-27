@@ -138,7 +138,6 @@ public class PlayerData : MonoBehaviourPunCallbacks
     #endregion
 
     private void Start() {
-        Invoke(nameof(FindPlayer), 0.2f);
         Invoke(nameof(SetUpPlayerData), 0.2f);
     }
 
@@ -177,7 +176,16 @@ public class PlayerData : MonoBehaviourPunCallbacks
 
     public static PlayerData FindPlayerData(Player p) {
         foreach (var item in FindObjectsOfType<PlayerData>()) {
-            if(item.player == p)
+            if (item.player == p)
+                return item;
+        }
+
+        return null;
+    }
+
+    public static PlayerData FindPlayerData(int i) {
+        foreach (var item in FindObjectsOfType<PlayerData>()) {
+            if (item.playerIndex == i)
                 return item;
         }
 

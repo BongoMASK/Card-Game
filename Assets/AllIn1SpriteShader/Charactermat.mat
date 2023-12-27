@@ -27,6 +27,7 @@ Material:
   - GLOWTEX_ON
   - HITEFFECT_ON
   - MANUALWIND_ON
+  - OUTBASE8DIR_ON
   - SHINE_ON
   m_InvalidKeywords:
   - _GRASSMANUALTOGGLE_ON
@@ -145,9 +146,9 @@ Material:
     - _AlphaClip: 0
     - _AlphaCutoffValue: 0
     - _AlphaOutlineBlend: 1
-    - _AlphaOutlineGlow: 5
-    - _AlphaOutlineMinAlpha: 0
-    - _AlphaOutlinePower: 1
+    - _AlphaOutlineGlow: 1
+    - _AlphaOutlineMinAlpha: 0.234
+    - _AlphaOutlinePower: 5
     - _AlphaRoundThreshold: 0.005
     - _BillboardY: 0
     - _Blend: 0
@@ -255,7 +256,7 @@ Material:
     - _OutlinePixelWidth: 1
     - _OutlineTexXSpeed: 10
     - _OutlineTexYSpeed: 0
-    - _OutlineWidth: 0.2
+    - _OutlineWidth: 0.124
     - _OverlayBlend: 1
     - _OverlayGlow: 1
     - _Parallax: 0.005
@@ -325,7 +326,7 @@ Material:
     - _HitEffectColor: {r: 0.9245283, g: 0.3009078, b: 0.3009078, a: 1}
     - _HologramStripeColor: {r: 0.08704163, g: 0.11320752, b: 0.11320752, a: 1}
     - _InnerOutlineColor: {r: 1, g: 1, b: 1, a: 1}
-    - _OutlineColor: {r: 1, g: 1, b: 1, a: 1}
+    - _OutlineColor: {r: 1, g: 0.89550054, b: 0, a: 1}
     - _OverlayColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 0, g: 0, b: 0, a: 1}
     - _ShineColor: {r: 1, g: 1, b: 1, a: 1}

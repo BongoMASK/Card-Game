@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public class HandCardPlacer : CardPlacer
@@ -7,12 +6,6 @@ public class HandCardPlacer : CardPlacer
     
     public override void OnCardPlaced(BaseCard card) {
         base.OnCardPlaced(card);
-
-        CardValidator.instance.allCards.Add(currentCard);
-        if (owner == GameManager.instance.user1)
-            CardValidator.instance.user1Cards.Add(currentCard);
-        else
-            CardValidator.instance.user2Cards.Add(currentCard);
     }
 
     public override void OnCardRemoved(BaseCard card) {
