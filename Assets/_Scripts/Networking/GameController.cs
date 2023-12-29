@@ -7,7 +7,7 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
     public static GameController instance;
 
     [SerializeField] PhotonView PV;
-    [SerializeField] NetworkedTurnManager networkedTurnManager; 
+    [SerializeField] NetworkedTurnManager networkedTurnManager;
     [SerializeField] CardFunctions cardFunctions;
 
     private void Awake() {
@@ -88,12 +88,10 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
             switch (move.moveType) {
                 case MoveType.Move:
                     isMoveValid = cardFunctions.ValidateMovement(card, cardPlacer, p);
-                    Debug.Log("HEEYYOOOOO3" + isMoveValid);
                     break;
 
                 case MoveType.Swap:
                     isMoveValid = cardFunctions.ValidateMovement(card, cardPlacer, p);
-                    Debug.Log("HEEYYOOOOO3" + isMoveValid);
                     break;
 
                 case MoveType.Attack:
@@ -126,11 +124,11 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
             case MoveType.Move:
                 cardFunctions.MoveCard(card, cardPlacer, true);
                 break;
-            case MoveType.Attack:
-                cardFunctions.Attack(card, cardPlacer);
-                break;
             case MoveType.Swap:
                 cardFunctions.SwapCards(card, cardPlacer, true);
+                break;
+            case MoveType.Attack:
+                cardFunctions.Attack(card, cardPlacer);
                 break;
         }
     }

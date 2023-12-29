@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class ShieldCardPlacer : CardPlacer
@@ -11,8 +10,6 @@ public class ShieldCardPlacer : CardPlacer
         c.currentCardPos = this;
         c.cardOwner = owner;
         c.hasBeenMoved = true;
-
-        //GameManager.instance.OnTurnBegin += SetCannotMove;
     }
 
     void SetCannotMove() {

@@ -6,12 +6,11 @@ using UnityEngine;
 
 public class PlayerData : MonoBehaviourPunCallbacks
 {
-    //[SerializeField] PhotonView PV;
     [SerializeField] int playerIndex = 0;
     
-    public HandCardPlacer[] handCardPlacers;
-    
     public Player player => PhotonNetwork.PlayerList[playerIndex];
+    
+    public HandCardPlacer[] handCardPlacers;
 
     public string username => player.NickName;
 
@@ -164,10 +163,6 @@ public class PlayerData : MonoBehaviourPunCallbacks
         hasPlacedCard = false;
 
         mana = currentMaxRoundMana;
-    }
-
-    private void FindPlayer() {
-        //player = PhotonView.Find(PV.ViewID).Owner;
     }
 
     public void UsedMana(int amount) {

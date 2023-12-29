@@ -1,3 +1,4 @@
+using DG.Tweening;
 using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
@@ -378,7 +379,10 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     }
 
     public void MoveTo(Vector3 targetPos) {
-        StartCoroutine(DoAnimation(targetPos));
+        float time = 0.4f;
+
+        transform.DOLocalMove(targetPos, time).SetEase(Ease.OutSine);
+        //StartCoroutine(DoAnimation(targetPos));
     }
 
     IEnumerator DoAnimation(Vector3 targetPos) {

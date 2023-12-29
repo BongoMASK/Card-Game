@@ -1,11 +1,9 @@
-using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CardFunctions : MonoBehaviour
 {
-
     public static CardFunctions instance;
 
     [SerializeField] NetworkedTurnManager networkedTurnManager;
@@ -19,21 +17,6 @@ public class CardFunctions : MonoBehaviour
     #region Attack Functions
 
     public bool ValidateAttack(BaseCard attacker, CardPlacer target, Player attackingPlayer) {
-        //if (attacker == null || target == null)
-        //    return false;
-
-        //if (attacker.cardOwner.lockInput)
-        //    return false;
-
-        //// will work after setting up attack placers
-        //bool b = ValidateAttack(attacker.currentCardPos, target);
-
-        //if (b) {
-        //    attacker.Attack(target.currentCard);
-        //}
-
-        //return b;
-
         return ValidateAttack(attacker, target.currentCard);
     }
 

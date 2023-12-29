@@ -18,7 +18,7 @@ public class GameData : MonoBehaviour {
     public List<CardPlacer> user2CardPlacers = new List<CardPlacer>();
 
     [Space]
-    public Dictionary<Player, Deck> playerDecks = new Dictionary<Player, Deck>();
+    public Dictionary<Player, Deck> playerDecks = new Dictionary<Player, Deck>(); 
 
     private BaseCard _currentSelectedCard;
 
