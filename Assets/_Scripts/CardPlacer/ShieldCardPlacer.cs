@@ -5,11 +5,14 @@ public class ShieldCardPlacer : CardPlacer
     [SerializeField] private BaseCard shieldCard;
 
     private void Start() {
-        BaseCard c = Instantiate(shieldCard);
-        currentCard = c;
-        c.currentCardPos = this;
-        c.cardOwner = owner;
-        c.hasBeenMoved = true;
+        //BaseCard c = Instantiate(shieldCard);
+        //currentCard = c;
+        //c.currentCardPos = this;
+        //c.cardOwner = owner;
+        //c.hasBeenMoved = true;
+
+        //SpriteRenderer rend = currentCard.transform.GetChild(1).GetComponent<SpriteRenderer>();
+        //rend.material.SetFloat("_Thickness", 0.02f);
     }
 
     void SetCannotMove() {
@@ -22,5 +25,11 @@ public class ShieldCardPlacer : CardPlacer
         base.OnCardPlaced(card);
 
         currentCard.cardStats = currentCard.cardStats.upgradedCardStats;
+
+        currentCard.cardOwner = owner;
+        currentCard.hasBeenMoved = true;
+
+        SpriteRenderer rend = currentCard.transform.GetChild(1).GetComponent<SpriteRenderer>();
+        rend.material.SetFloat("_Thickness", 0.02f);
     }
 }

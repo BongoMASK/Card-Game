@@ -64,11 +64,29 @@ public class GameData : MonoBehaviour {
         Invoke(nameof(SendDeckToMasterClient), 1);
     }
 
+    private void OnEnable() {
+        //GameController.instance.Ev_OnTurnBegins.AddListener((int t) => CheckIfNewCardsNeeded());
+    }
+
+    private void OnDisable() {
+        //GameController.instance.Ev_OnTurnBegins.RemoveListener((int t) => CheckIfNewCardsNeeded());
+    }
+
     public void CheckIfNewCardsNeeded() {
         if (!PhotonNetwork.IsMasterClient)
             return;
 
         foreach (var item in FindObjectsOfType<HandCardPlacer>()) {
+            if (item.currentCard == null)
+                CreateCardFromPlayerDeck(item.id, item.owner.player);
+        }
+    }
+
+    public void SetUpShieldCards() {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+
+        foreach (var item in FindObjectsOfType<ShieldCardPlacer>()) {
             if (item.currentCard == null)
                 CreateCardFromPlayerDeck(item.id, item.owner.player);
         }
@@ -98,15 +116,6 @@ public class GameData : MonoBehaviour {
         return null;
     }
 
-    public void ResetAllPlayersValues() {
-        if (!PhotonNetwork.IsMasterClient)
-            return;
-
-        foreach (var item in FindObjectsOfType<PlayerData>()) {
-            item.ResetBools();
-        }
-    }
-
     public void SendDeckToMasterClient() {
         object[] o = localPlayerDeck.ToByteArray();
         PV.RPC(nameof(RPC_SendDeckToMasterClient), RpcTarget.MasterClient, o, PhotonNetwork.LocalPlayer.ActorNumber);
@@ -117,7 +126,5 @@ public class GameData : MonoBehaviour {
         Deck deck = Deck.ToDeck(deckArray);
         Player p = PhotonNetwork.CurrentRoom.GetPlayer(sender);
         playerDecks[p] = deck;
-
-        playerDecks[p].Print();
     }
 }

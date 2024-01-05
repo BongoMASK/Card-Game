@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Photon.Pun;
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -27,13 +28,13 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     }
 
     public int defaultHP { get; private set; } = 0;
-    public int healthBuff { get; private set; } = 0;
-    public int damageBuff { get; private set; } = 0;
+    public int healthBuff { get; set; } = 0;
+    public int damageBuff { get; set; } = 0;
 
     public int passiveRange = 1;
 
     public int effectiveDamage => damageBuff + cardStats.damage;
-    public int effectiveHealth => healthBuff + defaultHP;
+    public int effectiveHealth => passiveHandler.extraHealth + defaultHP;
 
     public bool hasBeenMoved = false;
     public bool hasAttacked = false;
@@ -64,6 +65,7 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     public EventFuncs OnTakeDamage;
     public EventFuncs OnDie;
 
+    [SerializeField] PassiveHandler passiveHandler;
     [SerializeField] SpriteRenderer border;
     [SerializeField] Animator animator;
 
@@ -83,8 +85,7 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         //GameManager.instance.OnTurnBegin -= HasBeenMovedOverride;
     }
 
-    public virtual void ApplyPassive(CardPlacer target) {
-    }
+    public virtual void ApplyPassive(CardPlacer target) { }
 
     public static BaseCard FindCard(int id) {
         if (id < 0)
@@ -102,29 +103,6 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
 
     public virtual bool IsWithinAttackRange() {
         return true;
-    }
-
-    public bool CanAttack(BaseCard other) {
-        if (cardOwner.mana < cardStats.manaCost) {
-            GameManager.instance.SetMessageError("Not enough Mana");
-            return false;
-        }
-
-        if (hasAttacked) {
-            GameManager.instance.SetMessageError("Card has already attacked");
-            return false;
-        }
-
-        if (!IsWithinAttackRange()) {
-            GameManager.instance.SetMessageError("Card not in range");
-            return false;
-        }
-
-        bool b = effectiveDamage >= other.effectiveHealth;
-        if (!b)
-            GameManager.instance.SetMessageError("Not enough damage power");
-
-        return b;
     }
 
     public void TakeDamage(int damage) {
@@ -155,63 +133,12 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         Invoke(nameof(CheckAllCardsBuffs), 1.1f);
     }
 
-    public virtual void Attack(BaseCard attackedCard) {
-        Debug.Log(name + " trying to attack " + attackedCard.name);
-
-        if (CanAttack(attackedCard)) {
-
-            cardOwner.UsedMana(cardStats.manaCost);
-
-            bool b = attackedCard.CheckForBlockers(this);
-
-            if (!b) {
-                GameManager.instance.SetMessage(cardStats.cardName + " attacked " + attackedCard.cardStats.cardName);
-                attackedCard.TakeDamage(effectiveDamage);
-            }
-
-            hasAttacked = true;
-
-            AudioManager.instance.Play(SoundNames.attack);
-        }
+    public void Attack(BaseCard attackedCard) {
+        passiveHandler.Attack(this, attackedCard);
     }
 
-    /// <summary>
-    /// This code runs on the card that is being attacked.
-    /// It searches for blockers that can protect the card
-    /// </summary>
-    /// <param name="attackerCard"></param>
-    /// <returns></returns>
-    public bool CheckForBlockers(BaseCard attackerCard) {
-        List<BaseCard> cardList;
-        if (cardOwner == GameManager.instance.user1)
-            cardList = CardValidator.instance.user1Cards;
-        else
-            cardList = CardValidator.instance.user2Cards;
-
-        foreach (BaseCard blockerCard in cardList) {
-            if (blockerCard == this)
-                continue;
-
-            if (blockerCard is Tank) {
-                if (blockerCard.currentCardPos.attackPlacers.Contains(attackerCard.currentCardPos)) {
-
-                    Debug.Log(blockerCard.cardStats.cardName + blockerCard.cardOwner.username + blockerCard.currentCardPos);
-
-                    animator.SetTrigger("shine");
-
-                    if (attackerCard.CanAttack(blockerCard)) {
-                        GameManager.instance.SetMessage(attackerCard.cardStats.cardName + "'s attack to " + cardStats.cardName 
-                            + " was blocked by " + blockerCard.cardStats.cardName);
-
-                        blockerCard.TakeDamage(attackerCard.effectiveDamage);
-                    }
-                   
-                    return true;
-                }
-            }
-        }
-
-        return false;
+    public bool ValidateAttack(BaseCard attackedCard, Player sender) {
+        return passiveHandler.ValidateAttack(this, attackedCard, sender);
     }
 
     #endregion
@@ -244,35 +171,6 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
 
         HideMovementPowers();
         HideAttackPowers();
-    }
-
-    protected void ShowPowers() {
-        if (currentCardPos.pos == Vector2.zero)
-            return;
-
-        foreach (CardPlacer cp in currentCardPos.attackPlacers) {
-            if (cp.currentCard == null)
-                continue;
-
-            cp.currentCard.OnSelected(Color.red);
-        }
-
-        List<CardPlacer> cardPlacerList;
-        if (cardOwner == GameManager.instance.user1)
-            cardPlacerList = GameData.instance.user1CardPlacers;
-        else
-            cardPlacerList = GameData.instance.user2CardPlacers;
-
-
-        foreach (CardPlacer cp in cardPlacerList) {
-            if (cp == currentCardPos)
-                continue;
-
-            if (CheckDifference(currentCardPos.pos, cp.pos) <= 1) {
-                if (cp.currentCard == null)
-                    cp.OnSelected(Color.white);
-            }
-        }
     }
 
     protected virtual void ShowMovementPowers() {
@@ -336,32 +234,11 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
     }
 
     public void MoveCard(CardPlacer target, bool canMoveCard, bool moved = true) {
-        // Place card in the new position if everything is good
-        if (canMoveCard) {
+        passiveHandler.MoveCard(this, target, canMoveCard);
+    }
 
-            // Remove card from card placer
-            currentCardPos.OnCardRemoved(this);
-
-            // set new card position. This also starts the animation of the card moving towards the card pos
-            currentCardPos = target;
-
-            // set card placer value for current card
-            target.currentCard = this;
-
-            // Call Function that places the card on the thing
-            target.OnCardPlaced(this);
-
-            // Recheck for all buffs on all cards
-            CardValidator.instance.CheckForAllCardBuffs();
-
-            // set to true to restrict card from moving twice
-            hasBeenMoved = moved;
-        }
-
-        // Place card back to original position if there is a problem
-        else {
-            MoveTo(Vector3.zero);
-        }
+    public bool ValidateMovement(CardPlacer target, Player sender) {
+        return passiveHandler.ValidateMovement(this, target, sender);
     }
 
     public void HasBeenMovedOverride() {
@@ -374,7 +251,7 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         hasAttacked = false;
     }
 
-    bool IsWithinRange(CardPlacer target) {
+    public bool IsWithinRange(CardPlacer target) {
         return CheckDifference(currentCardPos.pos, target.pos) <= passiveRange;
     }
 
@@ -382,17 +259,9 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         float time = 0.4f;
 
         transform.DOLocalMove(targetPos, time).SetEase(Ease.OutSine);
-        //StartCoroutine(DoAnimation(targetPos));
     }
 
-    IEnumerator DoAnimation(Vector3 targetPos) {
-        while ((transform.localPosition - targetPos).magnitude > 0.1f) {
-            transform.localPosition = Vector3.Lerp(transform.localPosition, targetPos, 0.15f);
-            yield return null;
-        }
-
-        transform.localPosition = targetPos;
-    }
+    #endregion
 
     #region Buffs, Debuffs
 
@@ -426,8 +295,6 @@ public class BaseCard : MonoBehaviourPun, IDamageable {
         damageBuff = 0;
         healthBuff = 0;
     }
-
-    #endregion
 
     #endregion
 }

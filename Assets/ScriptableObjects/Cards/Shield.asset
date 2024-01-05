@@ -15,7 +15,7 @@ MonoBehaviour:
   cardName: Shield
   upgradedCardStats: {fileID: 11400000}
   normalCardStats: {fileID: 11400000}
-  cardType: 3
+  cardType: 7
   maxHP: 1
   sacrificeCost: 1
   damage: 1

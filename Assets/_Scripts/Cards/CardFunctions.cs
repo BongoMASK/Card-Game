@@ -6,8 +6,6 @@ public class CardFunctions : MonoBehaviour
 {
     public static CardFunctions instance;
 
-    [SerializeField] NetworkedTurnManager networkedTurnManager;
-
     [SerializeField] List<BaseCard> cardPrefabs = new List<BaseCard>();
 
     private void Awake() {
@@ -28,11 +26,10 @@ public class CardFunctions : MonoBehaviour
         if (attacker.cardOwner.lockInput)
             return false;
 
-        // will work after setting up attack placers
         bool b = ValidateAttack(attacker.currentCardPos, target.currentCardPos);
         
         if(b) {
-            attacker.cardOwner.UsedMana(attacker.cardStats.manaCost); 
+            //attacker.cardOwner.UsedMana(attacker.cardStats.manaCost); 
         }
 
         return b;
@@ -62,7 +59,7 @@ public class CardFunctions : MonoBehaviour
         AudioManager.instance.Play(SoundNames.attack);
     }
 
-    private bool CanAttack(BaseCard attacker, BaseCard other) {
+    public bool CanAttack(BaseCard attacker, BaseCard other) {
         if (attacker.cardOwner.mana < attacker.cardStats.manaCost) {
             GameControllerUI.instance.SetMessageError("Not enough Mana");
             return false;
@@ -127,7 +124,7 @@ public class CardFunctions : MonoBehaviour
 
     #region Move Functions
 
-    protected int CheckDifference(Vector2 v1, Vector2 v2) {
+    public int CheckDifference(Vector2 v1, Vector2 v2) {
         Vector2 v = v2 - v1;
         return (int)v.magnitude;
     }
@@ -222,7 +219,6 @@ public class CardFunctions : MonoBehaviour
     private bool NonBattleFieldMovementSystem(BaseCard card, CardPlacer target) {
         // Cannot move card to enemy zone
         if (card.cardOwner != target.owner) {
-            Debug.Log("fjdsklajfdlksajfdsajklfdsakfdklsafkdsaklfdskafjkdsajlfkdas");
             GameControllerUI.instance.SetMessageError("Cannot move card to enemy's area");
             return false;
         }
@@ -366,6 +362,11 @@ public class CardFunctions : MonoBehaviour
                 return;
         }
 
+        //c = Instantiate(cardPrefabs[(int)cardType]);
+
+        if (c == null)
+            return;
+
         c.transform.rotation = Quaternion.Euler(0, 0, Camera.main.transform.rotation.eulerAngles.z);
         CardPlacer cp = CardPlacer.FindCardPlacer(cardPlacerID);
 
@@ -373,6 +374,8 @@ public class CardFunctions : MonoBehaviour
         c.currentCardPos = cp;
         cp.currentCard = c;
         c.cardOwner = cp.owner;
+
+        cp.OnCardPlaced(c);
 
         BaseCard.id = id + 1;
 

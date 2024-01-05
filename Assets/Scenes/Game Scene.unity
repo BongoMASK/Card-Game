@@ -1131,6 +1131,27 @@ MonoBehaviour:
   PV: {fileID: 164087557}
   networkedTurnManager: {fileID: 164087560}
   cardFunctions: {fileID: 164087563}
+  Ev_OnPlayerTurnStarts:
+    m_PersistentCalls:
+      m_Calls: []
+  Ev_OnPlayerFinished:
+    m_PersistentCalls:
+      m_Calls: []
+  Ev_OnPlayerMove:
+    m_PersistentCalls:
+      m_Calls: []
+  Ev_OnCardCreated:
+    m_PersistentCalls:
+      m_Calls: []
+  Ev_OnTurnBegins:
+    m_PersistentCalls:
+      m_Calls: []
+  Ev_OnTurnCompleted:
+    m_PersistentCalls:
+      m_Calls: []
+  Ev_OnTurnTimeEnds:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &164087562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1256,11 +1277,11 @@ MonoBehaviour:
       m_Calls: []
   localPlayerDeck:
     cards:
-    - cardType: 2
+    - cardType: 0
       cardCount: 40
-    - cardType: 3
+    - cardType: 1
       cardCount: 50
-    - cardType: 4
+    - cardType: 2
       cardCount: 60
   PV: {fileID: 164087557}
   networkedTurnManager: {fileID: 164087560}
@@ -1276,7 +1297,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32042f0d1ef58e744b19ffe1bdfc3d0e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  networkedTurnManager: {fileID: 164087560}
   cardPrefabs:
   - {fileID: 5454643455510345415, guid: 873ef3c92de9bdc4c95120652ffb104b, type: 3}
   - {fileID: 4378990209675348492, guid: 17c21af74480b3e499d2f810ccf17873, type: 3}
@@ -1677,7 +1697,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 215509379}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.5, y: -5, z: 0}
+  m_LocalPosition: {x: 2, y: -5, z: 0}
   m_LocalScale: {x: 7.691747, y: 1.7604452, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1845,6 +1865,10 @@ PrefabInstance:
       propertyPath: _isMidCard
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3284415381780972786, guid: 7c7cb553ec1648a4f9e92e45ac97560d, type: 3}
+      propertyPath: shieldCard
+      value: 
+      objectReference: {fileID: 4378990209675348492, guid: 17c21af74480b3e499d2f810ccf17873, type: 3}
     - target: {fileID: 3284415381780972786, guid: 7c7cb553ec1648a4f9e92e45ac97560d, type: 3}
       propertyPath: cardPosition
       value: 1
@@ -4525,7 +4549,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &629838972
 PrefabInstance:
@@ -5456,6 +5480,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 903118525}
     - target: {fileID: 3284415381780972786, guid: 7c7cb553ec1648a4f9e92e45ac97560d, type: 3}
+      propertyPath: shieldCard
+      value: 
+      objectReference: {fileID: 4378990209675348492, guid: 17c21af74480b3e499d2f810ccf17873, type: 3}
+    - target: {fileID: 3284415381780972786, guid: 7c7cb553ec1648a4f9e92e45ac97560d, type: 3}
       propertyPath: cardPosition
       value: 2
       objectReference: {fileID: 0}
@@ -5508,7 +5536,7 @@ Transform:
   m_Children:
   - {fileID: 1921697910}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &903118525
 MonoBehaviour:
@@ -6325,7 +6353,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1139537234}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.75, y: -5, z: 0}
+  m_LocalPosition: {x: -6.75, y: -5, z: 0}
   m_LocalScale: {x: 7.691747, y: 1.7604452, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -6732,7 +6760,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1244956087}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.5, y: -5, z: 0}
+  m_LocalPosition: {x: 2, y: -5, z: 0}
   m_LocalScale: {x: 7.691747, y: 1.7604452, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -7129,6 +7157,10 @@ PrefabInstance:
       propertyPath: owner
       value: 
       objectReference: {fileID: 903118525}
+    - target: {fileID: 3284415381780972786, guid: 7c7cb553ec1648a4f9e92e45ac97560d, type: 3}
+      propertyPath: shieldCard
+      value: 
+      objectReference: {fileID: 4378990209675348492, guid: 17c21af74480b3e499d2f810ccf17873, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7c7cb553ec1648a4f9e92e45ac97560d, type: 3}
 --- !u!114 &1287014106 stripped
@@ -7758,7 +7790,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1423261618}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.75, y: -5, z: 0}
+  m_LocalPosition: {x: -6.75, y: -5, z: 0}
   m_LocalScale: {x: 7.691747, y: 1.7604452, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -8737,7 +8769,7 @@ Transform:
   m_Children:
   - {fileID: 228327155}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
 --- !u!1001 &1781086055
 PrefabInstance:

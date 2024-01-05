@@ -15,11 +15,12 @@ MonoBehaviour:
   cardName: Tank
   upgradedCardStats: {fileID: 11400000}
   normalCardStats: {fileID: 11400000, guid: a27359e43e7843943a1e0b09bb514336, type: 2}
-  cardType: 3
+  cardType: 0
   maxHP: 4
   sacrificeCost: 3
   damage: 3
   manaCost: 3
+  moveCost: 1
   sprite: {fileID: 21300000, guid: 5c1a6fbaac91caf4f9c8e11562a5b184, type: 3}
   passiveName: Aura of Courage
   passiveDescription: Allies Around you gain ONE Effective Health More than they

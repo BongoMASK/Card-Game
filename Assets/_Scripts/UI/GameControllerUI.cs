@@ -78,6 +78,8 @@ public class GameControllerUI : MonoBehaviourPunCallbacks
         if (!PhotonNetwork.IsMasterClient)
             return;
 
+        GameData.instance.SetUpShieldCards();
+        
         networkedTurnManager.BeginTurn();
         startGameButton.gameObject.SetActive(false);
     }

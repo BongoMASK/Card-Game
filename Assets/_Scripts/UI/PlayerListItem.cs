@@ -69,7 +69,7 @@ public class PlayerListItem : MonoBehaviourPunCallbacks
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps) {
         base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
 
-        if (changedProps.ContainsKey(PlayerProps.ManaPropKey) || changedProps.ContainsKey(PlayerProps.MaxManaPropKey)) {
+        if (changedProps.ContainsKey(PlayerProps.MaxManaPropKey) || changedProps.ContainsKey(PlayerProps.ManaPropKey)) {
             if (targetPlayer != this.player)
                 return;
 
@@ -79,5 +79,6 @@ public class PlayerListItem : MonoBehaviourPunCallbacks
             playerNameText.text  = player.NickName + " (" + mana + "/" + maxMana + ")";
         }
     }
+
     #endregion
 }

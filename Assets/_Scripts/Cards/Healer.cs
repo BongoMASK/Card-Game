@@ -1,7 +1,9 @@
+using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Tank : BaseCard
+public class Healer : BaseCard
 {
     public override void ApplyPassive(CardPlacer target) {
         // Check if card can apply passive

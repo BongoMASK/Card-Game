@@ -1,6 +1,7 @@
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
 
@@ -9,6 +10,14 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
     [SerializeField] PhotonView PV;
     [SerializeField] NetworkedTurnManager networkedTurnManager;
     [SerializeField] CardFunctions cardFunctions;
+
+    [HideInInspector] public UnityEvent<Player, int> Ev_OnPlayerTurnStarts;
+    [HideInInspector] public UnityEvent<Player, int, object[]> Ev_OnPlayerFinished;
+    [HideInInspector] public UnityEvent<Player, int, object[]> Ev_OnPlayerMove;
+    [HideInInspector] public UnityEvent<Player, int, object[]> Ev_OnCardCreated;
+    [HideInInspector] public UnityEvent<int> Ev_OnTurnBegins;
+    [HideInInspector] public UnityEvent<int> Ev_OnTurnCompleted;
+    [HideInInspector] public UnityEvent<int> Ev_OnTurnTimeEnds;
 
     private void Awake() {
         instance = this;
@@ -26,10 +35,14 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
 
     public void OnPlayerTurnStarts(Player player, int turn) {
         Debug.Log(player.NickName + "'s turn");
+
+        Ev_OnPlayerTurnStarts?.Invoke(player, turn);
     }
 
     public void OnPlayerFinished(Player player, int turn, object[] move) {
         Debug.Log(player.NickName + "'s turn is over");
+
+        Ev_OnPlayerFinished?.Invoke(player, turn, move);
     }
 
     public void OnPlayerMove(Player player, int turn, object[] move) {
@@ -37,6 +50,8 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
 
         PlayerMove playerMove = PlayerMove.ToPlayerMove(move);
         PerformMove(playerMove);
+
+        Ev_OnPlayerMove?.Invoke(player, turn, move);
     }
 
     public void OnTurnBegins(int turn) {
@@ -45,15 +60,21 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
         ResetAllCards();
 
         GameData.instance.CheckIfNewCardsNeeded();
-        GameData.instance.ResetAllPlayersValues();
+        ResetAllPlayersValues();
+
+        Ev_OnTurnBegins?.Invoke(turn);
     }
 
     public void OnTurnCompleted(int turn) {
         Debug.Log("Turn Finished");
+
+        Ev_OnTurnCompleted?.Invoke(turn);
     }
 
     public void OnTurnTimeEnds(int turn) {
         Debug.Log("Turn time ended");
+
+        Ev_OnTurnTimeEnds?.Invoke(turn);
     }
 
     public void OnCardCreated(Player owner, int turn, object[] cardData) {
@@ -64,6 +85,8 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
         Debug.Log(cardType + ", " + id);
 
         cardFunctions.CreateCard(id, cardType, cardPlacerID, owner);
+
+        Ev_OnCardCreated.Invoke(owner, turn, cardData);
     }
 
     #endregion
@@ -122,13 +145,16 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
 
         switch(move.moveType) {
             case MoveType.Move:
-                cardFunctions.MoveCard(card, cardPlacer, true);
+                card.MoveCard(cardPlacer, true);
+                //cardFunctions.MoveCard(card, cardPlacer, true);
                 break;
             case MoveType.Swap:
-                cardFunctions.SwapCards(card, cardPlacer, true);
+                card.MoveCard(cardPlacer, true);
+                //cardFunctions.SwapCards(card, cardPlacer, true);
                 break;
             case MoveType.Attack:
-                cardFunctions.Attack(card, cardPlacer);
+                card.Attack(cardPlacer.currentCard);
+                //cardFunctions.Attack(card, cardPlacer);
                 break;
         }
     }
@@ -137,6 +163,15 @@ public class GameController : MonoBehaviour, INetworkedTurnManagerCallbacks {
         foreach (var item in FindObjectsOfType<BaseCard>()) {
             item.hasBeenMoved = false;
             item.hasAttacked = false;
+        }
+    }
+
+    public void ResetAllPlayersValues() {
+        if (!PhotonNetwork.IsMasterClient)
+            return;
+
+        foreach (var item in FindObjectsOfType<PlayerData>()) {
+            item.ResetBools();
         }
     }
 }

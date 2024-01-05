@@ -15,11 +15,12 @@ MonoBehaviour:
   cardName: Beserker
   upgradedCardStats: {fileID: 11400000}
   normalCardStats: {fileID: 11400000, guid: c74b229480548fd48909dec969fb5504, type: 2}
-  cardType: 4
+  cardType: 1
   maxHP: 4
   sacrificeCost: 3
   damage: 3
   manaCost: 3
+  moveCost: 1
   sprite: {fileID: 21300000, guid: fd375562b44007b4ca9bb16dc523abe8, type: 3}
   passiveName: Aura of Rage
   passiveDescription: Allies around you gain 1 Damage when Attacking

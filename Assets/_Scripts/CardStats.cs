@@ -1,13 +1,13 @@
 using UnityEngine;
 
 public enum CardType {
-    Normal,
-    Assassin,
-    Mage,
     Tank,
     Beserker,
+    Mage,
     Healer,
+    Assassin,
     Warrior,
+    Normal,
     None
 }
 

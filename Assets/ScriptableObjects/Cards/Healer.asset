@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3de8da5915ba76c48b70ea49d905486b, type: 3}
-  m_Name: Beserker
+  m_Name: Healer
   m_EditorClassIdentifier: 
-  cardName: Beserker
-  upgradedCardStats: {fileID: 11400000, guid: ec40054ad86b16f4f844d0cdbf4a237c, type: 2}
+  cardName: Healer
+  upgradedCardStats: {fileID: 11400000, guid: d74ffc88b9b9aaa499cab24f5738ed72, type: 2}
   normalCardStats: {fileID: 11400000}
-  cardType: 1
-  maxHP: 3
-  sacrificeCost: 2
-  damage: 2
+  cardType: 3
+  maxHP: 1
+  sacrificeCost: 1
+  damage: 1
   manaCost: 3
   moveCost: 1
   sprite: {fileID: 21300000, guid: fd375562b44007b4ca9bb16dc523abe8, type: 3}
