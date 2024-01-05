@@ -229,8 +229,6 @@ public class CardFunctions : MonoBehaviour
         if (target.currentCard != null)
             canMoveCard = false;
 
-        Debug.Log("HEYOOOO" + canMoveCard);
-
         // Check if it is a mana card placer.
         // User can only sacrifice card to mana placer once per round
         if (target as ManaZoneCardPlacer) {
@@ -252,8 +250,6 @@ public class CardFunctions : MonoBehaviour
             else
                 card.cardOwner.hasPlacedCard = true;
         }
-
-        Debug.Log("HEYOOOO2" + canMoveCard);
 
         return canMoveCard;
     }

@@ -10,7 +10,32 @@ public class MovePassive : AppliedPassive
     }
 
     public virtual void Move(BaseCard card, CardPlacer target, bool canMoveCard) {
-        Debug.Log(card.cardStats.cardName + " trying to move to " + target.name);
+        // Place card in the new position if everything is good
+        if (canMoveCard) {
+
+            // Remove card from card placer
+            card.currentCardPos.OnCardRemoved(card);
+
+            // set new card position. This also starts the animation of the card moving towards the card pos
+            card.currentCardPos = target;
+
+            // set card placer value for current card
+            target.currentCard = card;
+
+            // Call Function that places the card on the thing
+            target.OnCardPlaced(card);
+
+            // Recheck for all buffs on all cards
+            CardFunctions.instance.CheckForAllCardBuffs();
+
+            // set to true to restrict card from moving twice
+            card.hasBeenMoved = true;
+        }
+
+        // Place card back to original position if there is a problem
+        else {
+            card.MoveTo(Vector3.zero);
+        }
     }
 
     public virtual bool ValidateMove(BaseCard card, CardPlacer target) {
